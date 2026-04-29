@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: inventory-staging
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn inventory.wsgi:application
