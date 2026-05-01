@@ -23,6 +23,18 @@ admin.site.login_template = "admin/login.html"
 #admin.site.register(EquipmentItem)
 #admin.site.register(PurchaseRecord)
 
+
+class UniversityAdminSite(admin.AdminSite):
+    site_header = "UWM Physics and Astronomy Equipment Inventory"
+    site_title = "Inventory Admin"
+    index_title = "Inventory Management"
+
+    def each_context(self, request):
+        context = super().each_context(request)
+        context["custom_admin_css"] = True
+        return context
+
+
 class RepairLogInline(admin.TabularInline):
     model = RepairLog
     extra = 0

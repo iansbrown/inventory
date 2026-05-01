@@ -1,0 +1,57 @@
+/* ================================
+   University Branding – Admin
+   Yellow & Black Theme
+   ================================ */
+
+/* Top header bar */
+#header {
+    background-color: #ffc72c; /* university yellow */
+    color: #000000;
+}
+
+/* Site title (top left) */
+#header h1, #header h1 a {
+    color: #000000;
+    font-weight: bold;
+}
+
+/* Main page title */
+#content h1 {
+    color: #000000;
+}
+
+/* Module headers */
+.module caption {
+    background-color: #000000;
+    color: #ffc72c;
+    font-weight: bold;
+}
+
+/* Buttons */
+.button, input[type=submit], input[type=button], .submit-row input {
+    background-color: #000000;
+    color: #ffc72c;
+    border: none;
+}
+
+.button:hover,
+input[type=submit]:hover {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+/* Links */
+a:link, a:visited {
+    color: #000000;
+}
+
+/* Selected row highlight */
+tr.row1:hover, tr.row2:hover {
+    background-color: #fff3c4;
+}
+
+/* Login page */
+.login #container {
+    border-top: 5px solid #ffc72c;
+}
+``
