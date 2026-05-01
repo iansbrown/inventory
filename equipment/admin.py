@@ -12,6 +12,13 @@ from .models import (
     EquipmentExperiment,
 )
 
+from django.contrib import admin
+from django.conf import settings
+
+admin.site.site_header = f"Physics and Astronomy Equipment Inventory ({settings.ENVIRONMENT_NAME})"
+admin.site.site_title = "Inventory Admin"
+admin.site.index_title = "Inventory Management"
+admin.site.login_template = "admin/login.html"
 
 #admin.site.register(EquipmentItem)
 #admin.site.register(PurchaseRecord)

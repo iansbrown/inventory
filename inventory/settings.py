@@ -22,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+ENVIRONMENT_NAME = os.getenv("ENVIRONMENT_NAME", "Development")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-staging-key")
@@ -59,6 +60,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "inventory.urls"
+
+LOGIN_URL = "/admin/login/"
 
 TEMPLATES = [
     {
