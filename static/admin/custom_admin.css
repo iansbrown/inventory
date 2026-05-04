@@ -9,21 +9,20 @@
     color: #000000;
 }
 
-/* ================================
-   Admin Header Logo Styling
-   ================================ */
-
+/* Admin Header Layout */
 #branding {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
+/* Logo sizing */
 .admin-logo {
     height: 48px;
     width: auto;
 }
 
+/* Site title */
 .admin-site-title {
     font-size: 1.3rem;
     font-weight: bold;
