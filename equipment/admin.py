@@ -34,7 +34,6 @@ class UniversityAdminSite(admin.AdminSite):
         context["custom_admin_css"] = True
         return context
 
-
 class RepairLogInline(admin.TabularInline):
     model = RepairLog
     extra = 0
