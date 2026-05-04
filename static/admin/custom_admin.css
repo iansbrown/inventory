@@ -3,6 +3,12 @@
    Yellow & Black Theme
    ================================ */
 
+/* Top header bar */
+#header {
+    background-color: #ffbd00; /* UWM Gold */
+    color: #000000;
+}
+
 /* ================================
    Admin Header Logo Styling
    ================================ */
@@ -23,12 +29,6 @@
     font-weight: bold;
     color: #000000;
     white-space: nowrap;
-}
-
-/* Top header bar */
-#header {
-    background-color: #ffbd00; /* UWM Gold */
-    color: #000000;
 }
 
 /* Site title (top left) */
