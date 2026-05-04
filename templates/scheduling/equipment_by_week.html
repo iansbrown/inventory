@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Equipment by Week</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            margin-top: 2rem;
+            background: #eee;
+            padding: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 0.5rem;
+        }
+        th {
+            background: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    {{ lab_offering.lab_course.course_code }} —
+    {{ lab_offering.academic_term.name }}
+</h1>
+
+{% for entry in equipment_per_week %}
+    <h2>
+        Week {{ entry.week.week_number }}
+        ({{ entry.week.week_start_date }})
+    </h2>
+
+    {% if entry.conflicts %}
+    	<p style="color: red;"><strong>Conflicts detected:</strong></p>
+    	<ul>
+        	{% for conflict in entry.conflicts %}
+            	   <li>
+                	{{ conflict.item }} —
+                	Required: {{ conflict.required }},
+               		Available: {{ conflict.available }}
+            	   </li>
+        	{% endfor %}
+    	</ul>
+    {% endif %}
+
+    {% if entry.equipment %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Equipment</th>
+                    <th>Quantity Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item, qty in entry.equipment.items %}
+                <tr>
+                    <td>{{ item }}</td>
+                    <td>{{ qty }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p><em>No equipment assigned for this week.</em></p>
+    {% endif %}
+{% endfor %}
+
+</body>
+</html>
