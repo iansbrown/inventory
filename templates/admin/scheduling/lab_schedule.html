@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>
+        {{ lab_offering.lab_course.course_code }}
+        – {{ lab_offering.academic_term.name }}
+        Lab Schedule
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 2rem;
+            color: #000;
+        }
+
+        h1, h2 {
+            margin-bottom: 0.25rem;
+        }
+
+        .metadata {
+            margin-bottom: 2rem;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 0.6rem;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .week-header {
+            background: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .meeting-label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    {{ lab_offering.lab_course.course_code }} —
+    {{ lab_offering.lab_course.course_title }}
+</h1>
+
+<div class="metadata">
+    <div><strong>Term:</strong> {{ lab_offering.academic_term.name }}</div>
+    <div><strong>Coordinator:</strong> {{ lab_offering.coordinator.get_full_name }}</div>
+    {% if lab_offering.default_lab_room %}
+        <div><strong>Lab Room:</strong> {{ lab_offering.default_lab_room }}</div>
+    {% endif %}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Week</th>
+            <th>Date</th>
+            <th>Experiment</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for week in schedule_weeks %}
+        {% if week.meetings.count == 1 %}
+            {% for meeting in week.meetings.all %}
+            <tr>
+                <td>Week {{ week.week_number }}</td>
+                <td>{{ week.week_start_date }}</td>
+                <td>{{ meeting.experiment }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="week-header">
+                <td colspan="3">
+                    Week {{ week.week_number }} — {{ week.week_start_date }}
+                </td>
+            </tr>
+            {% for meeting in week.meetings.all %}
+            <tr>
+                <td></td>
+                <td class="meeting-label">
+                    {{ meeting.label|default:"Meeting " |add:meeting.meeting_order }}
+                </td>
+                <td>{{ meeting.experiment }}</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

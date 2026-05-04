@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
@@ -27,6 +27,7 @@ def root_redirect(request):
 urlpatterns = [
     path("", root_redirect),
     path("admin/", admin.site.urls),
+    path("schedules/", include("scheduling.urls")),
 ]
 
 if settings.DEBUG:
