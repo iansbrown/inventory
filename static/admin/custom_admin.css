@@ -3,9 +3,31 @@
    Yellow & Black Theme
    ================================ */
 
+/* ================================
+   Admin Header Logo Styling
+   ================================ */
+
+#branding {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-logo {
+    height: 48px;
+    width: auto;
+}
+
+.admin-site-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #000000;
+    white-space: nowrap;
+}
+
 /* Top header bar */
 #header {
-    background-color: #ffc72c; /* university yellow */
+    background-color: #ffbd00; /* UWM Gold */
     color: #000000;
 }
 
@@ -23,14 +45,14 @@
 /* Module headers */
 .module caption {
     background-color: #000000;
-    color: #ffc72c;
+    color: #ffbd00;
     font-weight: bold;
 }
 
 /* Buttons */
 .button, input[type=submit], input[type=button], .submit-row input {
     background-color: #000000;
-    color: #ffc72c;
+    color: #ffbd00;
     border: none;
 }
 
@@ -52,6 +74,6 @@ tr.row1:hover, tr.row2:hover {
 
 /* Login page */
 .login #container {
-    border-top: 5px solid #ffc72c;
+    border-top: 5px solid #ffbd00;
 }
 ``

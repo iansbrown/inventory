@@ -1,7 +1,20 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
+{% block branding %}
+<div id="branding">
+    <a href="{% url 'admin:index' %}" class="admin-logo-link">
+        <img src="{% static 'admin/university_logo.png' %}"
+             alt="University Logo"
+             class="admin-logo">
+    </a>
+    <span class="admin-site-title">
+        Physics Equipment Inventory
+    </span>
+</div>
+{% endblock %}
+
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'admin/custom_admin.css' %}">
+    {% static 'admin/custom_admin.css' %}
 {% endblock %}
