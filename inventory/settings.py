@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "scheduling.apps.SchedulingConfig",
     
     # Your app
     "equipment",
