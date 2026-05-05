@@ -111,9 +111,9 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     form = EquipmentItemAdminForm
 
     exclude = (
-        "old_storage_length",
-        "old_storage_width",
-        "old_storage_height",
+        "storage_length",
+        "storage_width",
+        "storage_height",
     )
 
     inlines = [
@@ -179,9 +179,10 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         ("Location & Storage", {
             "fields": (
                 "current_location",
-                "storage_length",
-                "storage_width",
-                "storage_height",
+                "dimension_unit",
+                "storage_length_input",
+                "storage_width_input",
+                "storage_height_input",
                 "storage_footprint_area",
                 "storage_volume",
             )
@@ -215,14 +216,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
                 "updated_at",
             )
         }),
-        ("Dimensions", {
-            "fields": (
-                "dimension_unit",
-                "storage_length_input",
-                "storage_width_input",
-                "storage_height_input",
-            )
-        }),
+
     )
     
     def has_storage_dimensions(self, obj):
