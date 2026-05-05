@@ -388,7 +388,17 @@ class ExperimentAdmin(admin.ModelAdmin):
     )
 
     fieldsets = (
-        
+        ("Lab Information", {
+            "fields": (
+                "experiment_title"
+                "course_code",
+                "description",
+                "preferred_lab_type",
+                "requires_fixed_installation",
+                "move_sensitive",
+                )
+            }),
+            
         ("Space Requirements", {
             "fields": (
                 "dimension_unit",
