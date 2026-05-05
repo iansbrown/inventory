@@ -1,0 +1,50 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Equipment Conflicts — {{ term.name }}</h1>
+
+{% if not conflict_data %}
+    <p><strong>No equipment conflicts detected for this term.</strong></p>
+{% else %}
+    {% for entry in conflict_data %}
+        <hr>
+        <h2>
+            {{ entry.offering.lab_course.course_code }}
+            — {{ entry.offering.lab_course.course_title }}
+        </h2>
+
+        <p>
+            <strong>Coordinator:</strong>
+            {{ entry.offering.coordinator.get_full_name }}
+        </p>
+
+        <p>
+            <a href="{% url 'equipment_by_week'
+                entry.offering.lab_course.course_code
+                entry.offering.academic_term.name
+            %}">
+                View equipment by week →
+            </a>
+        </p>
+
+        {% for wk in entry.weeks %}
+            <h3>
+                Week {{ wk.week.week_number }}
+                ({{ wk.week.week_start_date }})
+            </h3>
+
+            <ul>
+            {% for conflict in wk.conflicts %}
+                <li>
+                    {{ conflict.item }}
+                    — Required: {{ conflict.required }},
+                    Available: {{ conflict.available }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

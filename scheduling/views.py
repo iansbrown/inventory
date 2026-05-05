@@ -10,7 +10,7 @@ from collections import defaultdict
 from django.shortcuts import get_object_or_404, render
 from scheduling.models import LabOffering
 from equipment.models import EquipmentExperiment
-
+from scheduling.conflicts import detect_equipment_conflicts
 
 def lab_schedule_view(request, course_code, term_name):
     lab_offering = get_object_or_404(

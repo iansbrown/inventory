@@ -20,8 +20,8 @@ urlpatterns = [
         name="lab_schedule_door",
     ),
     path(
-    "<str:course_code>/<str:term_name>/equipment/",
-    views.equipment_by_week_view,
-    name="equipment_by_week",
+        "<str:course_code>/<str:term_name>/equipment/",
+        views.equipment_by_week_view,
+        name="equipment_by_week",
 ),
 ]
