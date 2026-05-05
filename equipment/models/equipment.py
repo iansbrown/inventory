@@ -7,6 +7,22 @@ Created on Wed Apr 22 14:06:47 2026
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+from equipment.units import meters_to_inches, meters_to_feet
+
+
+@property
+def storage_length_inches(self):
+    if self.storage_length_m is None:
+        return None
+    return round(meters_to_inches(self.storage_length_m), 2)
+
+@property
+def storage_length_feet(self):
+    if self.storage_length_m is None:
+        return None
+    return round(meters_to_feet(self.storage_length_m), 2)
 
 
 class EquipmentItem(models.Model):
@@ -108,6 +124,37 @@ class EquipmentItem(models.Model):
         help_text="Number of items (only >1 for bulk items)"
     )
 
+    
+# --- Canonical metric dimensions (meters) ---
+    storage_length_m = models.DecimalField(
+        "Storage Length (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+        help_text="Internal storage length in meters"
+    )
+
+    storage_width_m = models.DecimalField(
+        "Storage Width (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+    )
+
+    storage_height_m = models.DecimalField(
+        "Storage Height (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+    )
+
+    
     # ---- Storage geometry (authoritative) ----
     storage_length = models.FloatField(
         null=True,

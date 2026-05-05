@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
+from .forms import EquipmentItemAdminForm
 
 from .models import (
     EquipmentItem,
@@ -107,6 +107,15 @@ class EquipmentItemInline(admin.TabularInline):
 
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
+    
+    form = EquipmentItemAdminForm
+
+    exclude = (
+        "old_storage_length",
+        "old_storage_width",
+        "old_storage_height",
+    )
+
     inlines = [
         RepairLogInline,
         EquipmentImageInline,
@@ -204,6 +213,14 @@ class EquipmentItemAdmin(admin.ModelAdmin):
             "fields": (
                 "created_at",
                 "updated_at",
+            )
+        }),
+        ("Dimensions", {
+            "fields": (
+                "dimension_unit",
+                "storage_length_input",
+                "storage_width_input",
+                "storage_height_input",
             )
         }),
     )
