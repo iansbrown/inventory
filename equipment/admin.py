@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .forms import EquipmentItemAdminForm
+from .forms import (
+    EquipmentItemAdminForm,
+    ExperimentAdminForm,
+)
 
 from .models import (
     EquipmentItem,
@@ -364,6 +367,15 @@ class StorageLocationAdmin(admin.ModelAdmin):
     
 @admin.register(Experiment)
 class ExperimentAdmin(admin.ModelAdmin):
+    form = ExperimentAdminForm
+    
+    # Hide legacy dimension fields
+    exclude = (
+        "required_length",
+        "required_width",
+        "required_height",
+    )
+
     search_fields = (
         "course_code",
         "experiment_title",
@@ -373,4 +385,21 @@ class ExperimentAdmin(admin.ModelAdmin):
         "course_code",
         "experiment_title",
         "preferred_lab_type",
+    )
+
+    fieldsets = (
+        (None, {
+            "fields": (
+                "name",
+                "description",
+            )
+        }),
+        ("Space Requirements", {
+            "fields": (
+                "dimension_unit",
+                "required_length_input",
+                "required_width_input",
+                "required_height_input",
+            )
+        }),
     )

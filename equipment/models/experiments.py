@@ -6,6 +6,24 @@ Created on Wed Apr 22 15:31:34 2026
 """
 
 from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+from django import forms
+from equipment.units import to_meters
+from equipment.units import meters_to_inches, meters_to_feet
+
+@property
+def required_length_feet(self):
+    if self.required_length_m is None:
+        return None
+    return round(meters_to_feet(self.required_length_m), 2)
+
+@property
+def required_length_inches(self):
+    if self.required_length_m is None:
+        return None
+    return round(meters_to_inches(self.required_length_m), 2)
+
 
 
 class Experiment(models.Model):
@@ -57,6 +75,37 @@ class Experiment(models.Model):
     # ---- Metadata ----
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    # --- Canonical metric dimensions (meters) ---
+    required_length_m = models.DecimalField(
+        "Required Length (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+        help_text="Minimum bench or floor length required, in meters"
+    )
+
+    required_width_m = models.DecimalField(
+        "Required Width (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+    )
+
+    required_height_m = models.DecimalField(
+        "Required Height (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+    )
+
 
     class Meta:
         ordering = ["course_code"]
@@ -121,3 +170,4 @@ class EquipmentExperiment(models.Model):
 
     def __str__(self):
         return f"{self.equipment} → {self.experiment}"
+
