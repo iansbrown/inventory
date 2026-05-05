@@ -390,7 +390,7 @@ class ExperimentAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Lab Information", {
             "fields": (
-                "experiment_title"
+                "experiment_title",
                 "course_code",
                 "description",
                 "preferred_lab_type",
