@@ -388,12 +388,7 @@ class ExperimentAdmin(admin.ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": (
-                "name",
-                "description",
-            )
-        }),
+        
         ("Space Requirements", {
             "fields": (
                 "dimension_unit",
