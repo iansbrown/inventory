@@ -3,6 +3,7 @@ from django.utils.html import format_html
 from .forms import (
     EquipmentItemAdminForm,
     ExperimentAdminForm,
+    StorageLocationAdminForm,
 )
 
 from .models import (
@@ -327,6 +328,8 @@ class PurchaseRecordAdmin(admin.ModelAdmin):
     
 @admin.register(StorageLocation)
 class StorageLocationAdmin(admin.ModelAdmin):
+    form = StorageLocationAdminForm
+    
     list_display = (
         "building",
         "room",
@@ -357,9 +360,16 @@ class StorageLocationAdmin(admin.ModelAdmin):
         ("Classification", {
             "fields": ("location_type", "is_final_location")
         }),
-        ("Capacity (Optional)", {
-            "fields": ("floor_area_allocated", "volume_capacity", "weight_capacity")
+
+        ("Usable Capacity", {
+            "fields": (
+                "dimension_unit",
+                "usable_length_input",
+                "usable_width_input",
+                "usable_height_input",
+            )
         }),
+
         ("Notes", {
             "fields": ("location_notes",)
         }),

@@ -7,10 +7,74 @@ Created on Tue May  5 13:33:09 2026
 
 from decimal import Decimal
 from django import forms
-from .models import EquipmentItem
 from django import forms
-from .models import Experiment
 from equipment.units import to_meters
+from .models import (
+    EquipmentItem,
+    PurchaseRecord,
+    StorageLocation,
+    RepairLog,
+    EquipmentImage,
+    Experiment,
+    EquipmentExperiment,
+)
+
+
+
+class StorageLocationAdminForm(forms.ModelForm):
+    DIMENSION_UNIT_CHOICES = (
+        ("m", "Meters"),
+        ("cm", "Centimeters"),
+        ("in", "Inches"),
+        ("ft", "Feet"),
+    )
+
+    dimension_unit = forms.ChoiceField(
+        choices=DIMENSION_UNIT_CHOICES,
+        initial="m",
+        required=False,
+        label="Capacity Units"
+    )
+
+    usable_length_input = forms.DecimalField(
+        required=False,
+        min_value=0,
+        label="Usable Length",
+    )
+
+    usable_width_input = forms.DecimalField(
+        required=False,
+        min_value=0,
+        label="Usable Width",
+    )
+
+    usable_height_input = forms.DecimalField(
+        required=False,
+        min_value=0,
+        label="Usable Height",
+    )
+
+    class Meta:
+        model = StorageLocation
+        fields = "__all__"
+
+    def clean(self):
+        cleaned = super().clean()
+        unit = cleaned.get("dimension_unit") or "m"
+
+        cleaned["usable_length_m"] = to_meters(
+            cleaned.get("usable_length_input"), unit
+        )
+        cleaned["usable_width_m"] = to_meters(
+            cleaned.get("usable_width_input"), unit
+        )
+        cleaned["usable_height_m"] = to_meters(
+            cleaned.get("usable_height_input"), unit
+        )
+
+        return cleaned
+
+
 
 class ExperimentAdminForm(forms.ModelForm):
     DIMENSION_UNIT_CHOICES = (

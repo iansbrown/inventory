@@ -6,6 +6,15 @@ Created on Wed Apr 22 15:31:34 2026
 """
 
 from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
+
+@property
+def usable_floor_area_m2(self):
+    if self.usable_length_m and self.usable_width_m:
+        return self.usable_length_m * self.usable_width_m
+    return None
 
 
 class StorageLocation(models.Model):
@@ -94,6 +103,38 @@ class StorageLocation(models.Model):
     # ---- Metadata ----
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    # --- Canonical metric capacity fields (meters) ---
+    usable_length_m = models.DecimalField(
+        "Usable Length (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+        help_text="Usable length of the lab space in meters"
+    )
+
+    usable_width_m = models.DecimalField(
+        "Usable Width (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+    )
+
+    usable_height_m = models.DecimalField(
+        "Usable Height (m)",
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True,
+        blank=True,
+        help_text="Clear usable height in meters"
+    )
+
 
     class Meta:
         ordering = ["building", "room", "cabinet", "shelf"]
