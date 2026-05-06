@@ -10,13 +10,6 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 
 
-@property
-def usable_floor_area_m2(self):
-    if self.usable_length_m and self.usable_width_m:
-        return self.usable_length_m * self.usable_width_m
-    return None
-
-
 class StorageLocation(models.Model):
     """
     Represents a physical storage location.
@@ -134,6 +127,13 @@ class StorageLocation(models.Model):
         blank=True,
         help_text="Clear usable height in meters"
     )
+    
+    @property
+    def usable_floor_area_m2(self):
+        if self.usable_length_m and self.usable_width_m:
+            return self.usable_length_m * self.usable_width_m
+        return None
+
 
 
     class Meta:

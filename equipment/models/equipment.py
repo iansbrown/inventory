@@ -12,19 +12,6 @@ from decimal import Decimal
 from equipment.units import meters_to_inches, meters_to_feet
 
 
-@property
-def storage_length_inches(self):
-    if self.storage_length_m is None:
-        return None
-    return round(meters_to_inches(self.storage_length_m), 2)
-
-@property
-def storage_length_feet(self):
-    if self.storage_length_m is None:
-        return None
-    return round(meters_to_feet(self.storage_length_m), 2)
-
-
 class EquipmentItem(models.Model):
     """
     Represents a single trackable inventory entity.
@@ -286,7 +273,18 @@ class EquipmentItem(models.Model):
     # ------------------------------------------------------------------
     # Validation and derived-field logic
     # ------------------------------------------------------------------
-
+    @property
+    def storage_length_inches(self):
+        if self.storage_length_m is None:
+            return None
+        return round(meters_to_inches(self.storage_length_m), 2)
+    
+    @property
+    def storage_length_feet(self):
+        if self.storage_length_m is None:
+            return None
+        return round(meters_to_feet(self.storage_length_m), 2)
+    
     @property
     def storage_volume_m3(self) -> Decimal | None:
         """

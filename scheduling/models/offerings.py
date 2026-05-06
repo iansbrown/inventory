@@ -9,13 +9,6 @@ from django.conf import settings
 from django.db import models
 
 
-
-@property
-def permanent_storage_m3(self):
-    from equipment.storage import course_storage_volume_m3
-    return course_storage_volume_m3(self)
-
-
 class LabOffering(models.Model):
     """
     Represents a specific offering of a lab course during an academic term.
@@ -50,7 +43,12 @@ class LabOffering(models.Model):
         blank=True,
         help_text="Coordinator notes specific to this offering"
     )
-
+    @property
+    def permanent_storage_m3(self):
+        from equipment.storage import course_storage_volume_m3
+        return course_storage_volume_m3(self)
+    
+    
     class Meta:
         unique_together = ("lab_course", "academic_term")
         ordering = ["academic_term", "lab_course"]

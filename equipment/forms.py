@@ -179,11 +179,6 @@ class EquipmentItemAdminForm(forms.ModelForm):
         label="Inventory tag prefix",
         help_text="Prefix used to generate tags (e.g. PSU, CART)."
     )
-
-    class Meta:
-        model = EquipmentItem
-        fields = "__all__"
-
     def clean(self):
         cleaned = super().clean()
         unit = cleaned.get("dimension_unit") or "m"
@@ -212,4 +207,10 @@ class EquipmentItemAdminForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+    class Meta:
+        model = EquipmentItem
+        fields = "__all__"
+
+
     

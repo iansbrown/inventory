@@ -12,22 +12,6 @@ from django import forms
 from equipment.units import to_meters
 from equipment.units import meters_to_inches, meters_to_feet
 
-@property
-def required_length_feet(self):
-    if self.required_length_m is None:
-        return None
-    return round(meters_to_feet(self.required_length_m), 2)
-
-@property
-def required_length_inches(self):
-    if self.required_length_m is None:
-        return None
-    return round(meters_to_inches(self.required_length_m), 2)
-
-@property
-def permanent_storage_m3(self):
-    from equipment.storage import experiment_storage_volume_m3
-    return experiment_storage_volume_m3(self)
 
 
 class Experiment(models.Model):
@@ -109,7 +93,22 @@ class Experiment(models.Model):
         null=True,
         blank=True,
     )
-
+    @property
+    def required_length_feet(self):
+        if self.required_length_m is None:
+            return None
+        return round(meters_to_feet(self.required_length_m), 2)
+    
+    @property
+    def required_length_inches(self):
+        if self.required_length_m is None:
+            return None
+        return round(meters_to_inches(self.required_length_m), 2)
+    
+    @property
+    def permanent_storage_m3(self):
+        from equipment.storage import experiment_storage_volume_m3
+        return experiment_storage_volume_m3(self)
 
     class Meta:
         ordering = ["course_code"]
