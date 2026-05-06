@@ -11,6 +11,38 @@ from django.shortcuts import get_object_or_404, render
 from scheduling.models import LabOffering
 from equipment.models import EquipmentExperiment
 from scheduling.conflicts import detect_equipment_conflicts
+from equipment.storage import total_storage_for_courses
+
+
+def storage_planning_view(request):
+    offerings = LabOffering.objects.select_related(
+        "lab_course", "academic_term"
+    ).order_by(
+        "academic_term__name",
+        "lab_course__course_code",
+    )
+
+    selected_ids = request.GET.getlist("offerings")
+
+    selected_offerings = LabOffering.objects.filter(
+        id__in=selected_ids
+    ) if selected_ids else []
+
+    result = None
+    if selected_offerings:
+        result = total_storage_for_courses(selected_offerings)
+
+    context = {
+        "offerings": offerings,
+        "selected_ids": [int(i) for i in selected_ids],
+        "result": result,
+    }
+
+    return render(
+        request,
+        "scheduling/storage_planning.html",
+        context,
+    )
 
 def lab_schedule_view(request, course_code, term_name):
     lab_offering = get_object_or_404(

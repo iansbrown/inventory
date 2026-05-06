@@ -376,3 +376,6 @@ def total_storage_for_courses(lab_offerings):
         "total_storage_m3": total_volume,
         "equipment": breakdown,
     }
+
+def total_storage_volume_m3_for_courses(lab_offerings):
+    return total_storage_for_courses(lab_offerings)["total_storage_m3"]

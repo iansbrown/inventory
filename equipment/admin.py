@@ -1,5 +1,9 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.html import format_html
+from equipment.duplication import duplicate_equipment_item
+from equipment.duplication import sequential_tag_generator
+
+
 from .forms import (
     EquipmentItemAdminForm,
     ExperimentAdminForm,
@@ -27,6 +31,21 @@ admin.site.login_template = "admin/login.html"
 #admin.site.register(EquipmentItem)
 #admin.site.register(PurchaseRecord)
 
+@admin.action(description="Duplicate selected equipment items")
+def duplicate_items(modeladmin, request, queryset):
+    for item in queryset:
+        duplicates = duplicate_equipment_item(
+            original_item=item,
+            count=15,  # default; we’ll improve this next
+            inventory_tag_generator=sequential_tag_generator(
+                item.inventory_tag or item.name
+            ),
+        )
+
+        messages.success(
+            request,
+            f"Created {len(duplicates)} duplicates of {item}"
+        )
 
 class UniversityAdminSite(admin.AdminSite):
     site_header = "UWM Physics and Astronomy Equipment Inventory"
@@ -220,9 +239,42 @@ class EquipmentItemAdmin(admin.ModelAdmin):
                 "updated_at",
             )
         }),
-
+        ("Bulk Creation", {
+            "fields": (
+                "create_duplicates",
+                "duplicate_count",
+                "inventory_tag_prefix",
+            ),
+            "classes": ("collapse",),
+        }),
     )
     
+    def save_model(self, request, obj, form, change):
+        # Save the original object first
+        super().save_model(request, obj, form, change)
+    
+        create_duplicates = form.cleaned_data.get("create_duplicates")
+        duplicate_count = form.cleaned_data.get("duplicate_count")
+        tag_prefix = form.cleaned_data.get("inventory_tag_prefix")
+    
+        if create_duplicates and duplicate_count and duplicate_count > 1:
+            duplicates_to_create = duplicate_count - 1
+    
+            gen = None
+            if tag_prefix:
+                gen = sequential_tag_generator(tag_prefix)
+    
+            duplicates = duplicate_equipment_item(
+                original_item=obj,
+                count=duplicates_to_create,
+                inventory_tag_generator=gen,
+            )
+    
+            messages.success(
+                request,
+                f"Created {len(duplicates) + 1} identical equipment items."
+            )
+            
     def has_storage_dimensions(self, obj):
         return bool(obj.storage_length and obj.storage_width)
 
