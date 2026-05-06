@@ -201,3 +201,15 @@ class EquipmentItemAdminForm(forms.ModelForm):
 
         return cleaned
     
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+    
+        # Explicitly copy cleaned converted values onto the model
+        instance.storage_length_m = self.cleaned_data.get("storage_length_m")
+        instance.storage_width_m = self.cleaned_data.get("storage_width_m")
+        instance.storage_height_m = self.cleaned_data.get("storage_height_m")
+    
+        if commit:
+            instance.save()
+        return instance
+    
