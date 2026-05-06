@@ -9,6 +9,13 @@ from django.conf import settings
 from django.db import models
 
 
+
+@property
+def permanent_storage_m3(self):
+    from equipment.storage import course_storage_volume_m3
+    return course_storage_volume_m3(self)
+
+
 class LabOffering(models.Model):
     """
     Represents a specific offering of a lab course during an academic term.

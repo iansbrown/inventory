@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Storage Planning</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 2rem;
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .courses {
+            margin-bottom: 1.5rem;
+        }
+
+        .courses label {
+            display: block;
+            margin: 0.3rem 0;
+        }
+
+        button {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 0.5rem;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        .total {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Storage Planning</h1>
+<p>Select one or more courses to estimate permanent storage needs.</p>
+
+<form method="get">
+
+    <div class="courses">
+        {% for offering in offerings %}
+            <label>
+                <input
+                    type="checkbox"
+                    name="offerings"
+                    value="{{ offering.id }}"
+                    {% if offering.id in selected_ids %}
+                        checked
+                    {% endif %}
+                >
+                {{ offering.lab_course.course_code }}
+                — {{ offering.lab_course.course_title }}
+                ({{ offering.academic_term.name }})
+            </label>
+        {% endfor %}
+    </div>
+
+    <button type="submit">Calculate Storage</button>
+</form>
+
+{% if result %}
+    <div class="total">
+        Total Permanent Storage Required:
+        {{ result.total_storage_m3|floatformat:3 }} m³
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Equipment</th>
+                <th>Max Quantity</th>
+                <th>Volume per Item (m³)</th>
+                <th>Total Storage (m³)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in result.equipment %}
+            <tr>
+                <td>{{ entry.equipment }}</td>
+                <td>{{ entry.max_quantity }}</td>
+                <td>{{ entry.volume_per_item_m3|floatformat:3 }}</td>
+                <td>{{ entry.total_volume_m3|floatformat:3 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+</body>
+</html>

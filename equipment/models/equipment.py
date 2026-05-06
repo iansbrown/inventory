@@ -287,6 +287,25 @@ class EquipmentItem(models.Model):
     # Validation and derived-field logic
     # ------------------------------------------------------------------
 
+    @property
+    def storage_volume_m3(self) -> Decimal | None:
+        """
+        Permanent storage volume required for ONE unit of this equipment item.
+        Stored canonically in cubic meters (m³).
+        """
+        if (
+            self.storage_length_m is None
+            or self.storage_width_m is None
+            or self.storage_height_m is None
+        ):
+            return None
+
+        return (
+            self.storage_length_m
+            * self.storage_width_m
+            * self.storage_height_m
+        )
+
     def clean(self):
         """
         Enforces consistency rules between tracking_level,

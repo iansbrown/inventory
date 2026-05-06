@@ -24,6 +24,10 @@ def required_length_inches(self):
         return None
     return round(meters_to_inches(self.required_length_m), 2)
 
+@property
+def permanent_storage_m3(self):
+    from equipment.storage import experiment_storage_volume_m3
+    return experiment_storage_volume_m3(self)
 
 
 class Experiment(models.Model):

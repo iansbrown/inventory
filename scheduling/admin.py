@@ -160,6 +160,21 @@ class LabSectionInline(admin.TabularInline):
 
 @admin.register(LabOffering)
 class LabOfferingAdmin(admin.ModelAdmin):
+    
+    readonly_fields = (
+        "permanent_storage_display",
+    )
+
+    def permanent_storage_display(self, obj):
+        vol = obj.permanent_storage_m3
+        if vol is None:
+            return "—"
+        return f"{vol:.3f} m³"
+
+    permanent_storage_display.short_description = (
+        "Permanent Storage Required"
+    )
+
      
     def has_equipment_conflicts(self, obj):
         """
