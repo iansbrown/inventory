@@ -100,7 +100,7 @@ class EquipmentImageInline(admin.TabularInline):
     
 class EquipmentExperimentInline(admin.TabularInline):
     model = EquipmentExperiment
-    extra = 0
+    extra = 1
     autocomplete_fields = ("experiment",)
     fields = (
         "experiment",
@@ -430,6 +430,10 @@ class StorageLocationAdmin(admin.ModelAdmin):
 class ExperimentAdmin(admin.ModelAdmin):
     form = ExperimentAdminForm
     
+    inlines = [
+        EquipmentExperimentInline,
+    ]
+
     # Hide legacy dimension fields
     exclude = (
         "required_length",
