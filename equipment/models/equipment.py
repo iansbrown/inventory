@@ -12,6 +12,8 @@ from decimal import Decimal
 from equipment.units import meters_to_inches, meters_to_feet
 
 
+SQ_METER_TO_SQ_FOOT = Decimal("10.7639104167")
+
 class EquipmentItem(models.Model):
     """
     Represents a single trackable inventory entity.
@@ -269,21 +271,52 @@ class EquipmentItem(models.Model):
     # ---- Metadata ----
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+        
+    # ------------------------------------------------------------------
+    # Imperial dimension helpers (derived, read-only)
+    # ------------------------------------------------------------------
 
-    # ------------------------------------------------------------------
-    # Validation and derived-field logic
-    # ------------------------------------------------------------------
     @property
     def storage_length_inches(self):
         if self.storage_length_m is None:
             return None
         return round(meters_to_inches(self.storage_length_m), 2)
-    
+
+    @property
+    def storage_width_inches(self):
+        if self.storage_width_m is None:
+            return None
+        return round(meters_to_inches(self.storage_width_m), 2)
+
+    @property
+    def storage_height_inches(self):
+        if self.storage_height_m is None:
+            return None
+        return round(meters_to_inches(self.storage_height_m), 2)
+
     @property
     def storage_length_feet(self):
         if self.storage_length_m is None:
             return None
         return round(meters_to_feet(self.storage_length_m), 2)
+
+    @property
+    def storage_width_feet(self):
+        if self.storage_width_m is None:
+            return None
+        return round(meters_to_feet(self.storage_width_m), 2)
+
+    @property
+    def storage_height_feet(self):
+        if self.storage_height_m is None:
+            return None
+        return round(meters_to_feet(self.storage_height_m), 2)
+
+    # ------------------------------------------------------------------
+    # Validation and derived-field logic
+    # ------------------------------------------------------------------
+
     
     @property
     def storage_volume_m3(self) -> Decimal | None:
@@ -304,65 +337,26 @@ class EquipmentItem(models.Model):
             * self.storage_height_m
         )
 
-    def clean(self):
+
+    @property
+    def storage_footprint_m2(self) -> Decimal | None:
         """
-        Enforces consistency rules between tracking_level,
-        quantity, and serial_number.
+        Permanent storage footprint (floor or shelf area)
+        required for ONE unit of this item, in square meters (m²).
         """
+        if self.storage_length_m is None or self.storage_width_m is None:
+            return None
 
-        if self.tracking_level == self.TRACKING_BULK:
-            if self.quantity < 1:
-                raise ValidationError("Bulk items must have quantity ≥ 1.")
-            if self.serial_number:
-                raise ValidationError("Bulk items must not have serial numbers.")
+        return self.storage_length_m * self.storage_width_m
 
-        if self.tracking_level in (
-            self.TRACKING_INDIVIDUAL_SERIALIZED,
-            self.TRACKING_INDIVIDUAL_NON_SERIALIZED,
-        ):
-            if self.quantity != 1:
-                raise ValidationError(
-                    "Individually tracked items must have quantity = 1."
-                )
 
-        if self.tracking_level == self.TRACKING_INDIVIDUAL_SERIALIZED:
-            if not self.serial_number:
-                raise ValidationError(
-                    "Serialized items must have a serial number."
-                )
+    @property
+    def storage_footprint_ft2(self):
+        if self.storage_footprint_m2 is None:
+            return None
+        return self.storage_footprint_m2 * SQ_METER_TO_SQ_FOOT
 
-        if self.tracking_level == self.TRACKING_INDIVIDUAL_NON_SERIALIZED:
-            if self.serial_number:
-                raise ValidationError(
-                    "Non-serialized items must not have a serial number."
-                )
 
-    def save(self, *args, **kwargs):
-        """
-        Automatically compute derived storage values before saving.
-        """
-
-        if self.storage_length is not None and self.storage_width is not None:
-            self.storage_footprint_area = (
-                self.storage_length * self.storage_width
-            )
-        else:
-            self.storage_footprint_area = None
-
-        if (
-            self.storage_length is not None
-            and self.storage_width is not None
-            and self.storage_height is not None
-        ):
-            self.storage_volume = (
-                self.storage_length *
-                self.storage_width *
-                self.storage_height
-            )
-        else:
-            self.storage_volume = None
-
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.inventory_tag} — {self.name}"

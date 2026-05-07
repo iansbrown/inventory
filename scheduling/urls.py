@@ -23,5 +23,11 @@ urlpatterns = [
         "<str:course_code>/<str:term_name>/equipment/",
         views.equipment_by_week_view,
         name="equipment_by_week",
+    ),    
+    path(
+        "storage/planning/",
+        views.storage_planning_view,
+        name="storage_planning",
 ),
+
 ]
