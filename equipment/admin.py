@@ -204,8 +204,11 @@ class EquipmentItemAdmin(admin.ModelAdmin):
                 "current_location",
                 "dimension_unit",
                 "storage_length_input",
+                "storage_length_m",
                 "storage_width_input",
+                "storage_width_m",
                 "storage_height_input",
+                "storage_height_m",
                 "storage_footprint_area",
                 "storage_volume",
             )
