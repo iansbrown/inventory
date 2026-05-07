@@ -273,12 +273,13 @@ class EquipmentItemAdmin(admin.ModelAdmin):
                 f"Created {len(duplicates) + 1} identical equipment items."
             )
             
+'''
     def has_storage_dimensions(self, obj):
         return bool(obj.storage_length and obj.storage_width)
 
     has_storage_dimensions.boolean = True
     has_storage_dimensions.short_description = "Has Storage Dimensions"
-
+'''
 
     autocomplete_fields = ("purchase_record", "current_location")
 
