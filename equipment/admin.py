@@ -209,8 +209,6 @@ class EquipmentItemAdmin(admin.ModelAdmin):
                 "storage_width_m",
                 "storage_height_input",
                 "storage_height_m",
-                "storage_footprint_area",
-                "storage_volume",
             )
         }),
         ("Constraints", {

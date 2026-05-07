@@ -8,7 +8,7 @@ Created on Tue May  5 13:33:09 2026
 from decimal import Decimal
 from django import forms
 from django import forms
-from equipment.units import to_meters
+from equipment.units import meters_to_inches, meters_to_feet, to_meters
 from .models import (
     EquipmentItem,
     PurchaseRecord,
@@ -179,6 +179,41 @@ class EquipmentItemAdminForm(forms.ModelForm):
         label="Inventory tag prefix",
         help_text="Prefix used to generate tags (e.g. PSU, CART)."
     )
+    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Only populate on edit (instance already exists)
+        if self.instance.pk:
+            unit = self.initial.get("dimension_unit", "m")
+
+            if self.instance.storage_length_m is not None:
+                self.initial["storage_length_input"] = self._convert_from_meters(
+                    self.instance.storage_length_m, unit
+                )
+
+            if self.instance.storage_width_m is not None:
+                self.initial["storage_width_input"] = self._convert_from_meters(
+                    self.instance.storage_width_m, unit
+                )
+
+            if self.instance.storage_height_m is not None:
+                self.initial["storage_height_input"] = self._convert_from_meters(
+                    self.instance.storage_height_m, unit
+                )
+
+    def _convert_from_meters(self, value, unit):
+        if unit == "m":
+            return value
+        if unit == "cm":
+            return value * Decimal("100")
+        if unit == "in":
+            return meters_to_inches(value)
+        if unit == "ft":
+            return meters_to_feet(value)
+        return value
+
     def clean(self):
         cleaned = super().clean()
         unit = cleaned.get("dimension_unit") or "m"
@@ -195,17 +230,22 @@ class EquipmentItemAdminForm(forms.ModelForm):
         )
 
         return cleaned
-    
+        
     def save(self, commit=True):
         instance = super().save(commit=False)
     
-        # Explicitly copy cleaned converted values onto the model
-        instance.storage_length_m = self.cleaned_data.get("storage_length_m")
-        instance.storage_width_m = self.cleaned_data.get("storage_width_m")
-        instance.storage_height_m = self.cleaned_data.get("storage_height_m")
+        if self.cleaned_data.get("storage_length_input") is not None:
+            instance.storage_length_m = self.cleaned_data.get("storage_length_m")
+    
+        if self.cleaned_data.get("storage_width_input") is not None:
+            instance.storage_width_m = self.cleaned_data.get("storage_width_m")
+    
+        if self.cleaned_data.get("storage_height_input") is not None:
+            instance.storage_height_m = self.cleaned_data.get("storage_height_m")
     
         if commit:
             instance.save()
+    
         return instance
 
     class Meta:
