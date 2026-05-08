@@ -27,7 +27,10 @@ class EquipmentItem(models.Model):
     equipment_type = models.ForeignKey(
         EquipmentType,
         on_delete=models.PROTECT,
-        related_name="items",
+        related_name="items",    
+        null=True,
+        blank=True,
+
     )
 
     # ---- Identification ----
@@ -284,3 +287,4 @@ class EquipmentItem(models.Model):
 
     def __str__(self):
         return f"{self.inventory_tag} — {self.name}"
+
