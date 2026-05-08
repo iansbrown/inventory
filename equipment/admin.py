@@ -20,7 +20,6 @@ from .models import (
     EquipmentExperiment,
 )
 
-from django.contrib import admin
 from django.conf import settings
 
 admin.site.site_header = f"Physics and Astronomy Equipment Inventory ({settings.ENVIRONMENT_NAME})"
@@ -101,13 +100,11 @@ class EquipmentImageInline(admin.TabularInline):
 class EquipmentExperimentInline(admin.TabularInline):
     model = EquipmentExperiment
     extra = 1
-    autocomplete_fields = ("experiment",)
+    autocomplete_fields = ("equipment_item",)
     fields = (
-        "experiment",
         "quantity_used",
         "is_core_to_experiment",
         "temporary_substitution_allowed",
-        "storage_group_label",
         "notes",
     )
     show_change_link = True
@@ -426,64 +423,74 @@ class StorageLocationAdmin(admin.ModelAdmin):
         }),
     )
     
+
+
 @admin.register(Experiment)
 class ExperimentAdmin(admin.ModelAdmin):
-    form = ExperimentAdminForm
-    
-    inlines = [
-        EquipmentExperimentInline,
-    ]
+    """
+    Admin configuration for Experiment.
 
-    # Hide legacy dimension fields
-    exclude = (
-        "required_length",
-        "required_width",
-        "required_height",
-    )
+    Experiments do not have intrinsic dimensions.
+    All storage requirements are derived from linked equipment.
+    """
 
+    # ------------------------------------------------------------------
+    # List View
+    # ------------------------------------------------------------------
 
-    readonly_fields = (
-        "permanent_storage_display",
-    )
-
-
-    def permanent_storage_display(self, obj):
-        vol = obj.permanent_storage_m3
-        if vol is None:
-            return "—"
-        return f"{vol:.3f} m³"
-
-    permanent_storage_display.short_description = "Permanent Storage Required"
-
-    search_fields = (
-        "course_code",
-        "experiment_title",
-        "description",
-    )
     list_display = (
         "course_code",
         "experiment_title",
         "preferred_lab_type",
+        "requires_fixed_installation",
+        "move_sensitive",
+        "storage_volume_display",
+        "storage_footprint_display",
     )
 
-    fieldsets = (
-        ("Lab Information", {
-            "fields": (
-                "experiment_title",
-                "course_code",
-                "description",
-                "preferred_lab_type",
-                "requires_fixed_installation",
-                "move_sensitive",
-                )
-            }),
-            
-        ("Space Requirements", {
-            "fields": (
-                "dimension_unit",
-                "required_length_input",
-                "required_width_input",
-                "required_height_input",
-            )
-        }),
+    list_filter = (
+        "course_code",
+        "preferred_lab_type",
+        "requires_fixed_installation",
+        "move_sensitive",
     )
+
+    search_fields = (
+        "course_code",
+        "experiment_title",
+    )
+
+    # ------------------------------------------------------------------
+    # Detail View
+    # ------------------------------------------------------------------
+
+    readonly_fields = (
+        "storage_volume_display",
+        "storage_footprint_display",
+        "created_at",
+        "updated_at",
+    )
+
+    inlines = [
+        EquipmentExperimentInline,
+    ]
+
+    # ------------------------------------------------------------------
+    # Read-only display helpers
+    # ------------------------------------------------------------------
+
+    def storage_volume_display(self, obj):
+        """
+        Display derived storage volume (m³) from equipment.
+        """
+        return f"{obj.storage_volume_m3:.3f} m³"
+
+    storage_volume_display.short_description = "Storage Volume"
+
+    def storage_footprint_display(self, obj):
+        """
+        Display derived storage footprint (m²) from equipment.
+        """
+        return f"{obj.storage_footprint_m2:.3f} m²"
+
+    storage_footprint_display.short_description = "Storage Footprint"

@@ -13,108 +13,93 @@ from equipment.units import to_meters
 from equipment.units import meters_to_inches, meters_to_feet
 
 
-
 class Experiment(models.Model):
     """
-    Represents a lab experiment, course lab, or instructional activity
-    that uses one or more pieces of equipment.
+    A lab experiment.
+
+    Experiments do NOT have intrinsic storage dimensions.
+    All storage footprint and volume are derived from required equipment.
     """
 
-    # ---- Identity ----
+    # ------------------------------------------------------------------
+    # Identity & Metadata
+    # ------------------------------------------------------------------
+
     course_code = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="Course or lab identifier (e.g. PHY 215 Lab)"
+        max_length=50,
+        help_text="Course code this experiment is typically associated with"
     )
 
     experiment_title = models.CharField(
         max_length=255,
-        help_text="Human-readable title of the experiment"
+        help_text="Human-readable experiment title"
     )
 
-    description = models.TextField(
-        blank=True,
-        help_text="Description of the experiment and its purpose"
-    )
-
-    # ---- Space and move relevance ----
     preferred_lab_type = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Preferred lab type (optics, electronics, general, etc.)"
+        help_text="Preferred lab environment (e.g. optics, electronics)"
     )
 
     requires_fixed_installation = models.BooleanField(
         default=False,
-        help_text="True if experiment requires permanent or semi-permanent installation"
+        help_text="Experiment requires fixed lab infrastructure"
     )
 
     move_sensitive = models.BooleanField(
         default=False,
-        help_text="True if experiment is sensitive to move timing or disruption"
+        help_text="Experiment equipment is sensitive to movement"
     )
 
-    setup_space_required = models.FloatField(
-        null=True,
-        blank=True,
-        help_text="Approximate floor area required when the experiment is set up"
-    )
-
-    # ---- Metadata ----
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    
-    # --- Canonical metric dimensions (meters) ---
-    required_length_m = models.DecimalField(
-        "Required Length (m)",
-        max_digits=8,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0"))],
-        null=True,
-        blank=True,
-        help_text="Minimum bench or floor length required, in meters"
-    )
 
-    required_width_m = models.DecimalField(
-        "Required Width (m)",
-        max_digits=8,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0"))],
-        null=True,
-        blank=True,
-    )
+    # ------------------------------------------------------------------
+    # Derived Storage Properties (equipment-driven)
+    # ------------------------------------------------------------------
 
-    required_height_m = models.DecimalField(
-        "Required Height (m)",
-        max_digits=8,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0"))],
-        null=True,
-        blank=True,
-    )
     @property
-    def required_length_feet(self):
-        if self.required_length_m is None:
-            return None
-        return round(meters_to_feet(self.required_length_m), 2)
-    
-    @property
-    def required_length_inches(self):
-        if self.required_length_m is None:
-            return None
-        return round(meters_to_inches(self.required_length_m), 2)
-    
-    @property
-    def permanent_storage_m3(self):
-        from equipment.storage import experiment_storage_volume_m3
-        return experiment_storage_volume_m3(self)
+    def storage_volume_m3(self) -> Decimal:
+        """
+        Total permanent storage volume required for this experiment,
+        derived from its equipment and quantities.
+        """
+        total = Decimal("0")
 
-    class Meta:
-        ordering = ["course_code"]
+        for link in self.equipment_links.select_related("equipment_item"):
+            item = link.equipment_item
+            if not item or item.storage_volume_m3 is None:
+                continue
+
+            qty = link.quantity_used or 1
+            total += item.storage_volume_m3 * qty
+
+        return total
+
+    @property
+    def storage_footprint_m2(self) -> Decimal:
+        """
+        Total permanent storage footprint (area) required for this experiment,
+        derived from its equipment and quantities.
+        """
+        total = Decimal("0")
+
+        for link in self.equipment_links.select_related("equipment_item"):
+            item = link.equipment_item
+            if not item or item.storage_footprint_m2 is None:
+                continue
+
+            qty = link.quantity_used or 1
+            total += item.storage_footprint_m2 * qty
+
+        return total
 
     def __str__(self):
         return f"{self.course_code} — {self.experiment_title}"
+
+
+    class Meta:
+        ordering = ["course_code"]
 
 
 class EquipmentExperiment(models.Model):

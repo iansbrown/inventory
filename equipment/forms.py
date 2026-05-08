@@ -76,58 +76,12 @@ class StorageLocationAdminForm(forms.ModelForm):
 
 
 
+
 class ExperimentAdminForm(forms.ModelForm):
-    DIMENSION_UNIT_CHOICES = (
-        ("m", "Meters"),
-        ("cm", "Centimeters"),
-        ("in", "Inches"),
-        ("ft", "Feet"),
-    )
-
-    dimension_unit = forms.ChoiceField(
-        choices=DIMENSION_UNIT_CHOICES,
-        initial="m",
-        required=False,
-        label="Dimension Units"
-    )
-
-    required_length_input = forms.DecimalField(
-        required=False,
-        min_value=0,
-        label="Required Length",
-    )
-
-    required_width_input = forms.DecimalField(
-        required=False,
-        min_value=0,
-        label="Required Width",
-    )
-
-    required_height_input = forms.DecimalField(
-        required=False,
-        min_value=0,
-        label="Required Height",
-    )
-
     class Meta:
         model = Experiment
         fields = "__all__"
 
-    def clean(self):
-        cleaned = super().clean()
-        unit = cleaned.get("dimension_unit") or "m"
-
-        cleaned["required_length_m"] = to_meters(
-            cleaned.get("required_length_input"), unit
-        )
-        cleaned["required_width_m"] = to_meters(
-            cleaned.get("required_width_input"), unit
-        )
-        cleaned["required_height_m"] = to_meters(
-            cleaned.get("required_height_input"), unit
-        )
-
-        return cleaned
     
     
 class EquipmentItemAdminForm(forms.ModelForm):
