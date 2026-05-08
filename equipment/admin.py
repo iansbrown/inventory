@@ -100,7 +100,7 @@ class EquipmentImageInline(admin.TabularInline):
 class EquipmentExperimentInline(admin.TabularInline):
     model = EquipmentExperiment
     extra = 1
-    autocomplete_fields = ("equipment",)
+    #autocomplete_fields = ("equipment",)
     fields = (
         "quantity_used",
         "is_core_to_experiment",
