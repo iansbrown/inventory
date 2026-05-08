@@ -20,3 +20,23 @@ def equipment_list_for_experiment(experiment):
         }
         for link in experiment.equipment_links.select_related("equipment")
     ]
+
+def available_count(equipment_type):
+    """
+    Return the number of usable (available) instances of an equipment type.
+    """
+    return equipment_type.items.filter(
+        status="available"
+    ).count()
+
+def can_schedule_experiment(experiment):
+    """
+    Returns True if all equipment requirements
+    for an experiment can be met.
+    """
+    for req in experiment.equipment_requirements.select_related(
+        "equipment_type"
+    ):
+        if available_count(req.equipment_type) < req.quantity_required:
+            return False
+    return True

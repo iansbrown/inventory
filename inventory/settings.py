@@ -42,11 +42,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "scheduling.apps.SchedulingConfig",
-    
-    # Your app
+    # Your apps
     "equipment",
-
+    "scheduling.apps.SchedulingConfig",
 ]
 
 MIDDLEWARE = [
@@ -80,6 +78,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "inventory.wsgi.application"
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 
 # Database

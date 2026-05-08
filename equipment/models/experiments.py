@@ -58,44 +58,32 @@ class Experiment(models.Model):
     # Derived Storage Properties (equipment-driven)
     # ------------------------------------------------------------------
 
-    @property
-    def storage_volume_m3(self) -> Decimal:
-        """
-        Total permanent storage volume required for this experiment,
-        derived from its equipment and quantities.
-        """
-        total = Decimal("0")
-
-        for link in self.equipment_links.select_related("equipment"):
-            item = link.equipment
-            if not item or item.storage_volume_m3 is None:
-                continue
-
-            qty = link.quantity_used or 1
-            total += item.storage_volume_m3 * qty
-
-        return total
 
     @property
-    def storage_footprint_m2(self) -> Decimal:
-        """
-        Total permanent storage footprint (area) required for this experiment,
-        derived from its equipment and quantities.
-        """
+    def storage_volume_m3(self):
         total = Decimal("0")
-
-        for link in self.equipment_links.select_related("equipment"):
-            item = link.equipment
-            if not item or item.storage_footprint_m2 is None:
+        for req in self.equipment_requirements.select_related("equipment_type"):
+            vol = req.equipment_type.storage_volume_m3
+            if vol is None:
                 continue
-
-            qty = link.quantity_used or 1
-            total += item.storage_footprint_m2 * qty
-
+            total += vol * req.quantity_required
         return total
+    
 
-    def __str__(self):
-        return f"{self.course_code} — {self.experiment_title}"
+        
+    @property
+    def storage_footprint_m2(self):
+        total = Decimal("0")
+        for req in self.equipment_requirements.select_related("equipment_type"):
+            area = req.equipment_type.storage_footprint_m2
+            if area is None:
+                continue
+            total += area * req.quantity_required
+        return total
+    
+    
+        def __str__(self):
+            return f"{self.course_code} — {self.experiment_title}"
 
 
     class Meta:
@@ -159,3 +147,24 @@ class EquipmentExperiment(models.Model):
     def __str__(self):
         return f"{self.equipment} → {self.experiment}"
 
+class ExperimentEquipmentRequirement(models.Model):
+    """
+    Defines how many units of an equipment type
+    an experiment requires.
+    """
+
+    experiment = models.ForeignKey(
+        "Experiment",
+        on_delete=models.CASCADE,
+        related_name="equipment_requirements",
+    )
+
+    equipment_type = models.ForeignKey(
+        "equipment.EquipmentType",
+        on_delete=models.PROTECT,
+    )
+
+    quantity_required = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        unique_together = ("experiment", "equipment_type")

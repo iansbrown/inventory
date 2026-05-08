@@ -82,9 +82,7 @@ class ExperimentAdminForm(forms.ModelForm):
         model = Experiment
         fields = "__all__"
 
-    
-    
-class EquipmentItemAdminForm(forms.ModelForm):
+class EquipmentTypeAdminForm(forms.ModelForm):
     DIMENSION_UNIT_CHOICES = (
         ("m", "Meters"),
         ("cm", "Centimeters"),
@@ -114,27 +112,7 @@ class EquipmentItemAdminForm(forms.ModelForm):
         min_value=0,
         label="Storage Height",
     )
-
-    create_duplicates = forms.BooleanField(
-        required=False,
-        label="Create multiple identical items",
-        help_text="Check this to create multiple identical copies of this item."
-    )
-
-    duplicate_count = forms.IntegerField(
-        required=False,
-        min_value=2,
-        label="Total number of items",
-        help_text="Total number of items to create (including this one)."
-    )
-
-    inventory_tag_prefix = forms.CharField(
-        required=False,
-        label="Inventory tag prefix",
-        help_text="Prefix used to generate tags (e.g. PSU, CART)."
-    )
     
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -201,6 +179,28 @@ class EquipmentItemAdminForm(forms.ModelForm):
             instance.save()
     
         return instance
+    
+class EquipmentItemAdminForm(forms.ModelForm):
+    
+    create_duplicates = forms.BooleanField(
+        required=False,
+        label="Create multiple identical items",
+        help_text="Check this to create multiple identical copies of this item."
+    )
+
+    duplicate_count = forms.IntegerField(
+        required=False,
+        min_value=2,
+        label="Total number of items",
+        help_text="Total number of items to create (including this one)."
+    )
+
+    inventory_tag_prefix = forms.CharField(
+        required=False,
+        label="Inventory tag prefix",
+        help_text="Prefix used to generate tags (e.g. PSU, CART)."
+    )
+    
 
     class Meta:
         model = EquipmentItem

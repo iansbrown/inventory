@@ -18,6 +18,8 @@ from .models import (
     EquipmentImage,
     Experiment,
     EquipmentExperiment,
+    EquipmentType,
+    ExperimentEquipmentRequirement,
 )
 
 from django.conf import settings
@@ -97,17 +99,11 @@ class EquipmentImageInline(admin.TabularInline):
     
     image_preview.short_description = "Preview"
     
-class EquipmentExperimentInline(admin.TabularInline):
-    model = EquipmentExperiment
+class ExperimentEquipmentRequirementInline(admin.TabularInline):
+    model = ExperimentEquipmentRequirement
+    autocomplete_fields = ("equipment_type",)
     extra = 1
-    autocomplete_fields = ("equipment",)
-    ''' fields = (
-        "quantity_used",
-        "is_core_to_experiment",
-        "temporary_substitution_allowed",
-        "notes",
-    )
-    show_change_link = True'''
+
     
 class EquipmentItemInline(admin.TabularInline):
     model = EquipmentItem
@@ -125,10 +121,27 @@ class EquipmentItemInline(admin.TabularInline):
     autocomplete_fields = ("current_location",)
     show_change_link = True
 
+@admin.register(EquipmentType)
+class EquipmentTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "manufacturer",
+        "model_number",
+        "storage_volume_display",
+    )
+    search_fields = ("name", "model_number")
+
+    def storage_volume_display(self, obj):
+        if obj.storage_volume_m3 is None:
+            return "—"
+        return f"{obj.storage_volume_m3:.3f} m³"
+
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
     
     form = EquipmentItemAdminForm
+    
+    autocomplete_fields = ("equipment_type",)
 
     exclude = (
         "storage_length",
@@ -139,7 +152,6 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     inlines = [
         RepairLogInline,
         EquipmentImageInline,
-        EquipmentExperimentInline,
     ]
 
     list_display = (
@@ -200,9 +212,9 @@ class EquipmentItemAdmin(admin.ModelAdmin):
             "fields": (
                 "current_location",
                 "dimension_unit",
-                "storage_length_input",
-                "storage_width_input",
-                "storage_height_input",
+                "storage_volume_m3",
+                "storage_area_m2",
+                "storage_area_ft2",
             )
         }),
         ("Constraints", {
@@ -471,9 +483,8 @@ class ExperimentAdmin(admin.ModelAdmin):
         "updated_at",
     )
 
-    inlines = [
-        EquipmentExperimentInline,
-    ]
+    inlines = [ExperimentEquipmentRequirementInline]
+    
 
     # ------------------------------------------------------------------
     # Read-only display helpers

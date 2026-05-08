@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from decimal import Decimal
 from equipment.units import meters_to_inches, meters_to_feet
-
+from equipment.models.equipment_type import EquipmentType
 
 SQ_METER_TO_SQ_FOOT = Decimal("10.7639104167")
 
@@ -23,6 +23,12 @@ class EquipmentItem(models.Model):
     - One non-serialized but individually tracked object
     - A bulk pool of interchangeable items
     """
+
+    equipment_type = models.ForeignKey(
+        EquipmentType,
+        on_delete=models.PROTECT,
+        related_name="items",
+    )
 
     # ---- Identification ----
     inventory_tag = models.CharField(
@@ -111,36 +117,6 @@ class EquipmentItem(models.Model):
     quantity = models.PositiveIntegerField(
         default=1,
         help_text="Number of items (only >1 for bulk items)"
-    )
-
-    
-# --- Canonical metric dimensions (meters) ---
-    storage_length_m = models.DecimalField(
-        "Storage Length (m)",
-        max_digits=8,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0"))],
-        null=True,
-        blank=True,
-        help_text="Internal storage length in meters"
-    )
-
-    storage_width_m = models.DecimalField(
-        "Storage Width (m)",
-        max_digits=8,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0"))],
-        null=True,
-        blank=True,
-    )
-
-    storage_height_m = models.DecimalField(
-        "Storage Height (m)",
-        max_digits=8,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0"))],
-        null=True,
-        blank=True,
     )
 
     
@@ -272,46 +248,7 @@ class EquipmentItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-        
-    # ------------------------------------------------------------------
-    # Imperial dimension helpers (derived, read-only)
-    # ------------------------------------------------------------------
 
-    @property
-    def storage_length_inches(self):
-        if self.storage_length_m is None:
-            return None
-        return round(meters_to_inches(self.storage_length_m), 2)
-
-    @property
-    def storage_width_inches(self):
-        if self.storage_width_m is None:
-            return None
-        return round(meters_to_inches(self.storage_width_m), 2)
-
-    @property
-    def storage_height_inches(self):
-        if self.storage_height_m is None:
-            return None
-        return round(meters_to_inches(self.storage_height_m), 2)
-
-    @property
-    def storage_length_feet(self):
-        if self.storage_length_m is None:
-            return None
-        return round(meters_to_feet(self.storage_length_m), 2)
-
-    @property
-    def storage_width_feet(self):
-        if self.storage_width_m is None:
-            return None
-        return round(meters_to_feet(self.storage_width_m), 2)
-
-    @property
-    def storage_height_feet(self):
-        if self.storage_height_m is None:
-            return None
-        return round(meters_to_feet(self.storage_height_m), 2)
 
     # ------------------------------------------------------------------
     # Validation and derived-field logic
@@ -327,37 +264,14 @@ class EquipmentItem(models.Model):
     has_storage_dimensions.boolean = True
     has_storage_dimensions.short_description = "Has Storage Dimensions"
 
+
+    @property
+    def storage_volume_m3(self):
+        return self.equipment_type.storage_volume_m3
     
     @property
-    def storage_volume_m3(self) -> Decimal | None:
-        """
-        Permanent storage volume required for ONE unit of this equipment item.
-        Stored canonically in cubic meters (m³).
-        """
-        if (
-            self.storage_length_m is None
-            or self.storage_width_m is None
-            or self.storage_height_m is None
-        ):
-            return None
-
-        return (
-            self.storage_length_m
-            * self.storage_width_m
-            * self.storage_height_m
-        )
-
-
-    @property
-    def storage_footprint_m2(self) -> Decimal | None:
-        """
-        Permanent storage footprint (floor or shelf area)
-        required for ONE unit of this item, in square meters (m²).
-        """
-        if self.storage_length_m is None or self.storage_width_m is None:
-            return None
-
-        return self.storage_length_m * self.storage_width_m
+    def storage_footprint_m2(self):
+        return self.equipment_type.storage_footprint_m2
 
 
     @property
