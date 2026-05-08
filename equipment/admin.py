@@ -444,8 +444,8 @@ class ExperimentAdmin(admin.ModelAdmin):
         "preferred_lab_type",
         "requires_fixed_installation",
         "move_sensitive",
-        #"storage_volume_display",
-        #"storage_footprint_display",
+        "storage_volume_display",
+        "storage_footprint_display",
     )
 
     list_filter = (
@@ -480,17 +480,17 @@ class ExperimentAdmin(admin.ModelAdmin):
     # ------------------------------------------------------------------
 
     def storage_volume_display(self, obj):
-        """
-        Display derived storage volume (m³) from equipment.
-        """
-        return f"{obj.storage_volume_m3:.3f} m³"
+        vol = obj.storage_volume_m3
+        if vol is None:
+            return "—"
+        return f"{vol:.3f} m³"
 
     storage_volume_display.short_description = "Storage Volume"
 
     def storage_footprint_display(self, obj):
-        """
-        Display derived storage footprint (m²) from equipment.
-        """
-        return f"{obj.storage_footprint_m2:.3f} m²"
+        area = obj.storage_footprint_m2
+        if area is None:
+            return "—"
+        return f"{area:.3f} m²"
 
     storage_footprint_display.short_description = "Storage Footprint"
