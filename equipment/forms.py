@@ -200,7 +200,6 @@ class EquipmentItemAdminForm(forms.ModelForm):
         label="Inventory tag prefix",
         help_text="Prefix used to generate tags (e.g. PSU, CART)."
     )
-    
 
     class Meta:
         model = EquipmentItem

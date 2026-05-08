@@ -211,7 +211,6 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         ("Location & Storage", {
             "fields": (
                 "current_location",
-                "dimension_unit",
                 "storage_volume_m3",
                 "storage_area_m2",
                 "storage_area_ft2",
@@ -255,6 +254,11 @@ class EquipmentItemAdmin(admin.ModelAdmin):
             "classes": ("collapse",),
         }),
     )
+    def storage_volume_display(self, obj):
+        if not obj.equipment_type:
+            return "—"
+        vol = obj.equipment_type.storage_volume_m3
+        return f"{vol:.3f} m³" if vol else "—"
     
     def save_model(self, request, obj, form, change):
         # Save the original object first
@@ -293,8 +297,6 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ("purchase_record", "current_location")
 
     readonly_fields = (
-        "storage_footprint_area",
-        "storage_volume",
         "created_at",
         "updated_at",
     )
