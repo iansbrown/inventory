@@ -66,8 +66,8 @@ class Experiment(models.Model):
         """
         total = Decimal("0")
 
-        for link in self.equipment_links.select_related("equipment_item"):
-            item = link.equipment_item
+        for link in self.equipment_links.select_related("equipment"):
+            item = link.equipment
             if not item or item.storage_volume_m3 is None:
                 continue
 
@@ -84,8 +84,8 @@ class Experiment(models.Model):
         """
         total = Decimal("0")
 
-        for link in self.equipment_links.select_related("equipment_item"):
-            item = link.equipment_item
+        for link in self.equipment_links.select_related("equipment"):
+            item = link.equipment
             if not item or item.storage_footprint_m2 is None:
                 continue
 

@@ -13,10 +13,10 @@ def equipment_list_for_experiment(experiment):
     """
     return [
         {
-            "equipment": link.equipment_item,
+            "equipment": link.equipment,
             "quantity": link.quantity_used or 1,
-            "storage_volume_m3": link.equipment_item.storage_volume_m3,
-            "storage_footprint_m2": link.equipment_item.storage_footprint_m2,
+            "storage_volume_m3": link.equipment.storage_volume_m3,
+            "storage_footprint_m2": link.equipment.storage_footprint_m2,
         }
-        for link in experiment.equipment_links.select_related("equipment_item")
+        for link in experiment.equipment_links.select_related("equipment")
     ]
