@@ -141,7 +141,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     
     form = EquipmentItemAdminForm
     
-    autocomplete_fields = ("equipment_type",)
+    #autocomplete_fields = ("equipment_type",)
 
     exclude = (
         "storage_length",
