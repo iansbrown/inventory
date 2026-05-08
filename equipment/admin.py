@@ -101,13 +101,13 @@ class EquipmentExperimentInline(admin.TabularInline):
     model = EquipmentExperiment
     extra = 1
     #autocomplete_fields = ("equipment",)
-    fields = (
+    ''' fields = (
         "quantity_used",
         "is_core_to_experiment",
         "temporary_substitution_allowed",
         "notes",
     )
-    show_change_link = True
+    show_change_link = True'''
     
 class EquipmentItemInline(admin.TabularInline):
     model = EquipmentItem
