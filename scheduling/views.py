@@ -12,13 +12,13 @@ from scheduling.models import LabOffering
 from equipment.models import EquipmentExperiment,Experiment
 from scheduling.conflicts import detect_equipment_conflicts
 from equipment.storage import total_storage_for_courses
-from experiments.services.equipment import equipment_list_for_experiment
+from equipment.utils import equipment_list_for_experiment
 
 def experiment_equipment_view(request, experiment_id):
     experiment = get_object_or_404(Experiment, id=experiment_id)
     equipment_list = equipment_list_for_experiment(experiment)
 
-    return render(
+    return render(      
         request,
         "experiments/equipment_list.html",
         {"experiment": experiment, "equipment_list": equipment_list},
