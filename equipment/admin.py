@@ -444,8 +444,8 @@ class ExperimentAdmin(admin.ModelAdmin):
         "preferred_lab_type",
         "requires_fixed_installation",
         "move_sensitive",
-        "storage_volume_display",
-        "storage_footprint_display",
+        #"storage_volume_display",
+        #"storage_footprint_display",
     )
 
     list_filter = (
