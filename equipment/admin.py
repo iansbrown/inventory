@@ -211,9 +211,9 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         ("Location & Storage", {
             "fields": (
                 "current_location",
-                "storage_volume_m3",
-                "storage_area_m2",
-                "storage_area_ft2",
+                #"storage_volume_m3",
+                #"storage_area_m2",
+                #"storage_area_ft2",
             )
         }),
         ("Constraints", {
