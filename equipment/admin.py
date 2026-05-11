@@ -490,7 +490,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
     ordering = ("location_type", "building", "room")
 
     fieldsets = (
-        ("Location", {
+        ("Location Identity", {
             "fields": ("building", "room", "cabinet", "shelf")
         }),
         ("Classification", {
@@ -499,7 +499,6 @@ class StorageLocationAdmin(admin.ModelAdmin):
 
         ("Capacity", {
             "fields": (
-                "dimension_unit",
                 "usable_length_input",
                 "usable_width_input",
                 "usable_height_input",
@@ -510,6 +509,20 @@ class StorageLocationAdmin(admin.ModelAdmin):
             "fields": ("location_notes",)
         }),
     )
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+    
+        # Explicitly mark form-only fields as safe
+        for name in (
+            "usable_length_input",
+            "usable_width_input",
+            "usable_height_input",
+        ):
+            if name in form.base_fields:
+                form.base_fields[name].required = False
+    
+        return form
     
     def usable_floor_area_display(self, obj):
         area = obj.usable_floor_area_m2

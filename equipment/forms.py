@@ -7,7 +7,6 @@ Created on Tue May  5 13:33:09 2026
 
 from decimal import Decimal
 from django import forms
-from django import forms
 from equipment.units import meters_to_inches, meters_to_feet, to_meters
 from .models import (
     EquipmentItem,
@@ -37,7 +36,7 @@ class StorageLocationAdminForm(forms.ModelForm):
         required=False,
         min_value=Decimal("0"),
     )
-
+    
     class Meta:
         model = StorageLocation
         fields = "__all__"
