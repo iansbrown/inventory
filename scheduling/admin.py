@@ -20,7 +20,7 @@ from django.utils.html import format_html
 from django.urls import path
 from django.shortcuts import render, get_object_or_404
 from collections import defaultdict
-from experiments.models import ExperimentEquipmentRequirement
+from equipment.models import ExperimentEquipmentRequirement
 from collections import defaultdict
 from scheduling.conflicts import detect_equipment_conflicts
 
