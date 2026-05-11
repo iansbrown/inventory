@@ -526,7 +526,7 @@ class ExperimentAdmin(admin.ModelAdmin):
         "move_sensitive",
         "storage_volume_display",
         "storage_footprint_display",
-        "schedulable",
+        #"schedulable",
     )
 
     list_filter = (
