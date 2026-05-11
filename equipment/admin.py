@@ -463,7 +463,7 @@ class PurchaseRecordAdmin(admin.ModelAdmin):
 @admin.register(StorageLocation)
 class StorageLocationAdmin(admin.ModelAdmin):
     form = StorageLocationAdminForm
-
+    
     list_display = (
         "building",
         "room",
@@ -472,36 +472,51 @@ class StorageLocationAdmin(admin.ModelAdmin):
         "location_type",
         "usable_floor_area_display",
     )
-
+    
     readonly_fields = ("usable_floor_area_display",)
+    
+    list_filter = (
+        "location_type",
+        "is_final_location",
+    )
+
+    search_fields = (
+        "room",
+        "cabinet",
+        "shelf",
+        "location_notes",
+    )
+
+    ordering = ("location_type", "building", "room")
 
     fieldsets = (
         ("Location", {
-            "fields": ("building", "room", "cabinet", "shelf"),
+            "fields": ("building", "room", "cabinet", "shelf")
         }),
         ("Classification", {
-            "fields": ("location_type", "is_final_location"),
+            "fields": ("location_type", "is_final_location")
         }),
-        ("Capacity (Enter dimensions)", {
+
+        ("Capacity", {
             "fields": (
+                "dimension_unit",
                 "usable_length_input",
                 "usable_width_input",
                 "usable_height_input",
             )
         }),
-        ("Derived", {
-            "fields": ("usable_floor_area_display",),
-        }),
+
         ("Notes", {
-            "fields": ("location_notes",),
+            "fields": ("location_notes",)
         }),
     )
-
+    
     def usable_floor_area_display(self, obj):
         area = obj.usable_floor_area_m2
         return f"{area:.2f} m²" if area else "—"
 
     usable_floor_area_display.short_description = "Usable Floor Area"
+
 
 
 @admin.register(Experiment)
