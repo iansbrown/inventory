@@ -37,9 +37,18 @@
             <ul>
             {% for conflict in wk.conflicts %}
                 <li>
-                    {{ conflict.item }}
+                    <strong>
+                        <a href="{% url 'admin:equipment_equipmenttype_change'
+                            conflict.equipment_type.id
+                        %}">
+                            {{ conflict.equipment_type.name }}
+                        </a>
+                    </strong>
                     — Required: {{ conflict.required }},
-                    Available: {{ conflict.available }}
+                    Available: {{ conflict.available }},
+                    <span style="color: red;">
+                        Shortfall: {{ conflict.shortfall }}
+                    </span>
                 </li>
             {% endfor %}
             </ul>

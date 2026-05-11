@@ -48,6 +48,11 @@
             font-weight: bold;
             white-space: nowrap;
         }
+
+        .muted {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -69,18 +74,24 @@
     <thead>
         <tr>
             <th>Week</th>
-            <th>Date</th>
+            <th>Date / Meeting</th>
             <th>Experiment</th>
         </tr>
     </thead>
     <tbody>
     {% for week in schedule_weeks %}
-        {% if week.meetings.count == 1 %}
+        {% if week.meetings.all|length == 1 %}
             {% for meeting in week.meetings.all %}
             <tr>
                 <td>Week {{ week.week_number }}</td>
                 <td>{{ week.week_start_date }}</td>
-                <td>{{ meeting.experiment }}</td>
+                <td>
+                    {% if meeting.experiment %}
+                        {{ meeting.experiment }}
+                    {% else %}
+                        <span class="muted">No experiment assigned</span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         {% else %}
@@ -95,7 +106,13 @@
                 <td class="meeting-label">
                     {{ meeting.label|default:"Meeting " |add:meeting.meeting_order }}
                 </td>
-                <td>{{ meeting.experiment }}</td>
+                <td>
+                    {% if meeting.experiment %}
+                        {{ meeting.experiment }}
+                    {% else %}
+                        <span class="muted">No experiment assigned</span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         {% endif %}

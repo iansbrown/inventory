@@ -46,6 +46,11 @@
             margin-top: 1rem;
             font-weight: bold;
         }
+
+        .muted {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -54,7 +59,6 @@
 <p>Select one or more courses to estimate permanent storage needs.</p>
 
 <form method="get">
-
     <div class="courses">
         {% for offering in offerings %}
             <label>
@@ -62,9 +66,7 @@
                     type="checkbox"
                     name="offerings"
                     value="{{ offering.id }}"
-                    {% if offering.id in selected_ids %}
-                        checked
-                    {% endif %}
+                    {% if offering.id in selected_ids %}checked{% endif %}
                 >
                 {{ offering.lab_course.course_code }}
                 — {{ offering.lab_course.course_title }}
@@ -85,19 +87,39 @@
     <table>
         <thead>
             <tr>
-                <th>Equipment</th>
-                <th>Max Quantity</th>
-                <th>Volume per Item (m³)</th>
-                <th>Total Storage (m³)</th>
+                <th>Equipment Type</th>
+                <th>Max Concurrent Quantity</th>
+                <th>Storage Volume per Unit (m³)</th>
+                <th>Total Storage Required (m³)</th>
             </tr>
         </thead>
         <tbody>
             {% for entry in result.equipment %}
             <tr>
-                <td>{{ entry.equipment }}</td>
+                <td>
+                    {% if entry.equipment %}
+                        <a href="{% url 'admin:equipment_equipmenttype_change' entry.equipment.id %}">
+                            {{ entry.equipment.name }}
+                        </a>
+                    {% else %}
+                        <span class="muted">Unknown equipment</span>
+                    {% endif %}
+                </td>
                 <td>{{ entry.max_quantity }}</td>
-                <td>{{ entry.volume_per_item_m3|floatformat:3 }}</td>
-                <td>{{ entry.total_volume_m3|floatformat:3 }}</td>
+                <td>
+                    {% if entry.volume_per_item_m3 %}
+                        {{ entry.volume_per_item_m3|floatformat:3 }}
+                    {% else %}
+                        <span class="muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if entry.total_volume_m3 %}
+                        {{ entry.total_volume_m3|floatformat:3 }}
+                    {% else %}
+                        <span class="muted">—</span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

@@ -24,9 +24,21 @@
         th, td {
             border: 1px solid #444;
             padding: 0.5rem;
+            text-align: left;
         }
         th {
             background: #f4f4f4;
+        }
+        .conflict-text {
+            color: #b00020;
+            font-weight: bold;
+        }
+        .conflict-row {
+            background: #ffe6e6;
+        }
+        .muted {
+            color: #666;
+            font-style: italic;
         }
     </style>
 </head>
@@ -44,39 +56,76 @@
     </h2>
 
     {% if entry.conflicts %}
-    	<p style="color: red;"><strong>Conflicts detected:</strong></p>
-    	<ul>
-        	{% for conflict in entry.conflicts %}
-            	   <li>
-                	{{ conflict.item }} —
-                	Required: {{ conflict.required }},
-               		Available: {{ conflict.available }}
-            	   </li>
-        	{% endfor %}
-    	</ul>
+        <p class="conflict-text">
+            ⚠ Equipment conflicts detected:
+        </p>
+        <ul>
+            {% for conflict in entry.conflicts %}
+                <li>
+                    {{ conflict.equipment_type.name }} —
+                    Required: {{ conflict.required }},
+                    Available: {{ conflict.available }},
+                    Shortfall: {{ conflict.shortfall }}
+                </li>
+            {% endfor %}
+        </ul>
     {% endif %}
 
     {% if entry.equipment %}
         <table>
             <thead>
                 <tr>
-                    <th>Equipment</th>
-                    <th>Quantity Required</th>
+                    <th>Equipment Type</th>
+                    <th>Required</th>
+                    <th>Available</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item, qty in entry.equipment.items %}
-                <tr>
-                    <td>{{ item }}</td>
-                    <td>{{ qty }}</td>
-                </tr>
+                {% for equipment_type, qty in entry.equipment.items %}
+                    {% with conflict=None %}
+                        {% for c in entry.conflicts %}
+                            {% if c.equipment_type == equipment_type %}
+                                {% with conflict=c %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+
+                    <tr class="{% if conflict %}conflict-row{% endif %}">
+                        <td>
+                            <a href="{% url 'admin:equipment_equipmenttype_change' equipment_type.id %}"
+                               target="_blank">
+                                {{ equipment_type.name }}
+                            </a>
+                        </td>
+                        <td>{{ qty }}</td>
+                        <td>
+                            {% if conflict %}
+                                {{ conflict.available }}
+                            {% else %}
+                                ✓
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if conflict %}
+                                <span class="conflict-text">
+                                    Short by {{ conflict.shortfall }}
+                                </span>
+                            {% else %}
+                                <span class="muted">OK</span>
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p><em>No equipment assigned for this week.</em></p>
+        <p class="muted">No equipment required for this week.</p>
     {% endif %}
 {% endfor %}
 
 </body>
 </html>
+
+

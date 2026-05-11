@@ -9,19 +9,55 @@ Created on Mon May  4 14:50:40 2026
 from collections import defaultdict
 from django.shortcuts import get_object_or_404, render
 from scheduling.models import LabOffering
-from equipment.models import EquipmentExperiment,Experiment
+from equipment.models import Experiment
 from scheduling.conflicts import detect_equipment_conflicts
 from equipment.storage import total_storage_for_courses
 from equipment.utils import equipment_list_for_experiment
+from experiments.models import ExperimentEquipmentRequirement
+
+
+
+def build_equipment_type_map_for_experiments(experiments):
+    """
+    Returns {EquipmentType: total_required_quantity}
+    """
+    equipment_type_map = defaultdict(int)
+
+    for experiment in experiments:
+        if not experiment:
+            continue
+        for req in experiment.equipment_requirements.select_related(
+            "equipment_type"
+        ):
+            if req.equipment_type:
+                equipment_type_map[req.equipment_type] += req.quantity_required
+
+    return equipment_type_map
+
 
 def experiment_equipment_view(request, experiment_id):
     experiment = get_object_or_404(Experiment, id=experiment_id)
-    equipment_list = equipment_list_for_experiment(experiment)
 
-    return render(      
+    requirements = experiment.equipment_requirements.select_related(
+        "equipment_type"
+    )
+
+    equipment_list = [
+        {
+            "equipment_type": req.equipment_type,
+            "quantity_required": req.quantity_required,
+        }
+        for req in requirements
+        if req.equipment_type
+    ]
+
+    return render(
         request,
         "experiments/equipment_list.html",
-        {"experiment": experiment, "equipment_list": equipment_list},
+        {
+            "experiment": experiment,
+            "equipment_list": equipment_list,
+        },
     )
 
 
@@ -121,30 +157,27 @@ def equipment_by_week_view(request, course_code, term_name):
     equipment_per_week = []
 
     for week in schedule_weeks:
-        # This dict will accumulate equipment counts for ONE week
-        equipment_map = defaultdict(int)
-    
-        # Loop over meetings in this week (1 for Spring/Fall, 2 for Summer)
-        for meeting in week.meetings.all():
-            experiment = meeting.experiment
-    
-            # Find all equipment used by this experiment
-            equipment_links = EquipmentExperiment.objects.filter(
-                experiment=experiment
-            ).select_related("equipment_item")
-    
-            # Add the quantities needed
-            for link in equipment_links:
-                if link.equipment_item:
-                    equipment_map[link.equipment_item] += link.quantity_used or 1
-    
-        # 👉 THIS is where conflict detection gets hooked in
-        conflicts = detect_equipment_conflicts(equipment_map)
-    
-        # Store everything for this week
+        experiments = [
+            m.experiment for m in week.meetings.all() if m.experiment
+        ]
+
+        equipment_type_map = build_equipment_type_map_for_experiments(
+            experiments
+        )
+
+        conflicts = detect_equipment_conflicts(equipment_type_map)
+
         equipment_per_week.append({
             "week": week,
-            "equipment": dict(equipment_map),
+            "equipment": equipment_type_map,
             "conflicts": conflicts,
         })
 
+    return render(
+        request,
+        "scheduling/equipment_by_week.html",
+        {
+            "lab_offering": lab_offering,
+            "equipment_per_week": equipment_per_week,
+        },
+    )

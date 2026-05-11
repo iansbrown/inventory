@@ -20,8 +20,30 @@ from django.utils.html import format_html
 from django.urls import path
 from django.shortcuts import render, get_object_or_404
 from collections import defaultdict
-from equipment.models import EquipmentExperiment
+from experiments.models import ExperimentEquipmentRequirement
+from collections import defaultdict
 from scheduling.conflicts import detect_equipment_conflicts
+
+
+
+def build_equipment_type_map_for_experiments(experiments):
+    """
+    experiments: iterable of Experiment objects
+
+    Returns:
+        {EquipmentType: total_required_quantity}
+    """
+    equipment_type_map = defaultdict(int)
+
+    for experiment in experiments:
+        for req in experiment.equipment_requirements.select_related(
+            "equipment_type"
+        ):
+            if not req.equipment_type:
+                continue
+            equipment_type_map[req.equipment_type] += req.quantity_required
+
+    return equipment_type_map
 
 
 @admin.register(AcademicTerm)
@@ -50,18 +72,16 @@ class AcademicTermAdmin(admin.ModelAdmin):
             offering_conflicts = []
 
             for week in offering.schedule_weeks.all():
-                equipment_map = defaultdict(int)
+                                
+                experiments = [m.experiment for m in week.meetings.all() if m.experiment]
+                
+                equipment_type_map = build_equipment_type_map_for_experiments(
+                    experiments
+                )
+                
+                conflicts = detect_equipment_conflicts(equipment_type_map)
 
-                for meeting in week.meetings.all():
-                    for link in EquipmentExperiment.objects.filter(
-                        experiment=meeting.experiment
-                    ):
-                        if link.equipment_item:
-                            equipment_map[link.equipment_item] += (
-                                link.quantity_used or 1
-                            )
 
-                conflicts = detect_equipment_conflicts(equipment_map)
 
                 if conflicts:
                     offering_conflicts.append({
@@ -181,16 +201,13 @@ class LabOfferingAdmin(admin.ModelAdmin):
         Returns True if ANY week in this offering has conflicts.
         """
         for week in obj.schedule_weeks.prefetch_related("meetings__experiment"):
-            equipment_map = defaultdict(int)
-    
-            for meeting in week.meetings.all():
-                for link in EquipmentExperiment.objects.filter(
-                    experiment=meeting.experiment
-                ):
-                    if link.equipment_item:
-                        equipment_map[link.equipment_item] += link.quantity_used or 1
-    
-            if detect_equipment_conflicts(equipment_map):
+            experiments = [m.experiment for m in week.meetings.all() if m.experiment]
+
+            equipment_type_map = build_equipment_type_map_for_experiments(
+                experiments
+            )
+            
+            if detect_equipment_conflicts(equipment_type_map):
                 return True
 
         return False
@@ -203,32 +220,33 @@ class LabOfferingAdmin(admin.ModelAdmin):
         Returns an HTML summary of weeks with conflicts.
         """
         rows = []
-    
-        for week in obj.schedule_weeks.prefetch_related("meetings__experiment"):
-            equipment_map = defaultdict(int)
-    
-            for meeting in week.meetings.all():
-                for link in EquipmentExperiment.objects.filter(
-                    experiment=meeting.experiment
-                ):
-                    if link.equipment_item:
-                        equipment_map[link.equipment_item] += link.quantity_used or 1
-    
-            conflicts = detect_equipment_conflicts(equipment_map)
-    
+        
+        for week in obj.schedule_weeks.prefetch_related(
+            "meetings__experiment"
+        ):
+            experiments = [m.experiment for m in week.meetings.all() if m.experiment]
+        
+            equipment_type_map = build_equipment_type_map_for_experiments(
+                experiments
+            )
+        
+            conflicts = detect_equipment_conflicts(equipment_type_map)
+        
             if conflicts:
                 rows.append(
                     f"<li><strong>Week {week.week_number}</strong>: "
-                    f"{len(conflicts)} conflict(s)</li>"
+                    + ", ".join(
+                        f"{c['equipment_type'].name} (short {c['shortfall']})"
+                        for c in conflicts
+                    )
+                    + "</li>"
                 )
-    
+        
         if not rows:
             return "No equipment conflicts detected."
-    
-        return format_html(
-            "<ul>{}</ul>",
-            format_html("".join(rows))
-        )
+        
+        return format_html("<ul>{}</ul>", format_html("".join(rows)))
+
     
     conflict_summary.short_description = "Equipment Conflict Summary"
 
