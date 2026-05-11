@@ -83,6 +83,12 @@ class RepairLogInline(admin.TabularInline):
 
     
 class EquipmentImageInline(admin.TabularInline):
+    
+    """
+    Images associated with a specific equipment item.
+    Item-level documentation; not shared across EquipmentType.
+    """
+
     model = EquipmentImage
     extra = 0
     fields = (
@@ -95,40 +101,75 @@ class EquipmentImageInline(admin.TabularInline):
     readonly_fields = ("image_preview",)
     show_change_link = True
 
+
     def image_preview(self, obj):
-        if obj.image:
-            return format_html(
-                '<a href="{0}" target="_blank">'
-                '<img src="{0}" style="max-height: 120px; max-width: 160px;" />'
-                '</a>',
-                obj.image.url
-            )
+        try:
+            if obj.image and hasattr(obj.image, "url"):
+                return format_html(
+                    '<a href="{}" target="_blank">'
+                    '<img src="{}" style="max-height: 120px; max-width: 160px;" />'
+                    '</a>',
+                    obj.image.url,
+                    obj.image.url,
+                )
+        except Exception:
+            pass
         return "No image"
+
     
     
     image_preview.short_description = "Preview"
     
 class ExperimentEquipmentRequirementInline(admin.TabularInline):
+   
+    """
+    Defines how many units of an equipment type
+    are required for an experiment.
+    """
+
     model = ExperimentEquipmentRequirement
-    autocomplete_fields = ("equipment_type",)
+    fk_name = "experiment"
     extra = 1
+    
+    autocomplete_fields = ("equipment_type",)
+
+    fields = (
+        "equipment_type",
+        "quantity_required",
+    )
+
 
     
 class EquipmentItemInline(admin.TabularInline):
+    """
+    Read-only view of individual items belonging to an equipment type.
+    Lifecycle and inventory-level data only.
+    """
     model = EquipmentItem
+    fk_name = "equipment_type"
     extra = 0
+    show_change_link = True
+    can_delete = False
+
     fields = (
         "inventory_tag",
-        "name",
         "tracking_level",
-        "quantity",
         "serial_number",
         "asset_tag",
         "current_location",
         "status",
     )
+
     autocomplete_fields = ("current_location",)
-    show_change_link = True
+
+    readonly_fields = (
+        "inventory_tag",
+        "tracking_level",
+        "serial_number",
+        "asset_tag",
+        "current_location",
+        "status",
+    )
 
 
 @admin.register(EquipmentType)
@@ -235,175 +276,9 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
 
     storage_footprint_display.short_description = "Storage Footprint"
 
-    # No inlines yet — add after auditing
-    inlines = []
-'''
-@admin.register(EquipmentItem)
-class EquipmentItemAdmin(admin.ModelAdmin):
-    
-    #form = EquipmentItemAdminForm
-    
-    #autocomplete_fields = ("equipment_type",)
+    # No inlines
+    inlines = [EquipmentItemInline]
 
-   
-    inlines = [
-        RepairLogInline,
-        EquipmentImageInline,
-    ]
-
-    list_display = (
-        "inventory_tag",
-        "name",
-        "tracking_level",
-        "status",
-        "current_location",
-        "has_storage_dimensions",
-    )
-
-    list_filter = (
-        "tracking_level",
-        "status",
-        "access_frequency",
-        "current_location",
-        "migration_flags",
-    )
-    
-    search_fields = (
-        "inventory_tag",
-        "name",
-        "keywords",
-        "serial_number",
-        "asset_tag",
-    )
-
-    ordering = ("inventory_tag",)
-
-    fieldsets = (
-        ("Procurement", {
-            "fields": (
-                "purchase_record",
-            )
-        }),
-        ("Identification", {
-            "fields": (
-                "inventory_tag",
-                "name",
-                "description",
-                "keywords",
-                "category",
-                "manufacturer",
-                "model_number",
-                "serial_number",
-                "asset_tag",
-            )
-        }),
-        ("Tracking", {
-            "fields": (
-                "tracking_level",
-                "quantity",
-                "status",
-            )
-        }),
-    
-        ("Location & Storage", {
-            "fields": (
-                "current_location",
-                #"storage_volume_m3",
-                #"storage_area_m2",
-                #"storage_area_ft2",
-            )
-        }),
-        ("Constraints", {
-            "fields": (
-                "weight",
-                "is_stackable",
-                "max_stack_height",
-                "storage_orientation",
-                "requires_heavy_duty_shelving",
-            )
-        }),
-        ("Environment & Usage", {
-            "fields": (
-                "requires_climate_control",
-                "requires_dark_storage",
-                "requires_secure_storage",
-                "access_frequency",
-            )
-        }),
-        ("Notes & Migration", {
-            "fields": (
-                "handling_notes",
-                "migration_flags",
-            )
-        }),
-        ("Metadata", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            )
-        }),
-        ("Bulk Creation", {
-            "fields": (
-                "create_duplicates",
-                "duplicate_count",
-                "inventory_tag_prefix",
-            ),
-            "classes": ("collapse",),
-        }),
-    )
-    def storage_volume_display(self, obj):
-        if not obj.equipment_type:
-            return "—"
-        vol = obj.equipment_type.storage_volume_m3
-        return f"{vol:.3f} m³" if vol else "—"
-    
-    def save_model(self, request, obj, form, change):
-        # Save the original object first
-        super().save_model(request, obj, form, change)
-    
-        create_duplicates = form.cleaned_data.get("create_duplicates")
-        duplicate_count = form.cleaned_data.get("duplicate_count")
-        tag_prefix = form.cleaned_data.get("inventory_tag_prefix")
-    
-        if create_duplicates and duplicate_count and duplicate_count > 1:
-            duplicates_to_create = duplicate_count - 1
-    
-            gen = None
-            if tag_prefix:
-                gen = sequential_tag_generator(tag_prefix)
-    
-            duplicates = duplicate_equipment_item(
-                original_item=obj,
-                count=duplicates_to_create,
-                inventory_tag_generator=gen,
-            )
-    
-            messages.success(
-                request,
-                f"Created {len(duplicates) + 1} identical equipment items."
-            )
-            
-            
-    def has_storage_dimensions(self, obj):
-        return bool(obj.storage_length and obj.storage_width)
-
-    has_storage_dimensions.boolean = True
-    has_storage_dimensions.short_description = "Has Storage Dimensions"
-   
-
-    autocomplete_fields = ("purchase_record", "current_location")
-
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
-    
-    @admin.action(description="Clear migration flags (mark reviewed)")
-    def clear_migration_flags(self, request, queryset):
-        queryset.update(migration_flags="")
-        
-    actions = ["clear_migration_flags"]
-    '''
 
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
@@ -468,7 +343,8 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     )
 
     # Inlines
-    inlines = [RepairLogInline]
+    inlines = [RepairLogInline,
+               EquipmentImageInline]
 
 @admin.register(PurchaseRecord)
 class PurchaseRecordAdmin(admin.ModelAdmin):
