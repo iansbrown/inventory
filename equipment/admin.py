@@ -180,7 +180,6 @@ class PurchaseEquipmentItemInline(admin.TabularInline):
     fk_name = "purchase_record"
     extra = 0
     show_change_link = True
-    can_delete = False
 
     fields = (
         "inventory_tag",
@@ -578,13 +577,14 @@ class ExperimentAdmin(admin.ModelAdmin):
     )
 
     inlines = [ExperimentEquipmentRequirementInline]
-
+    @admin.display(description="Storage Volume")
     def storage_volume_display(self, obj):
         vol = obj.storage_volume_m3
         return f"{vol:.3f} m³" if vol is not None else "—"
 
     storage_volume_display.short_description = "Storage Volume"
 
+    @admin.display(description="Storage Footprint")
     def storage_footprint_display(self, obj):
         area = obj.storage_footprint_m2
         return f"{area:.3f} m²" if area is not None else "—"
@@ -592,8 +592,14 @@ class ExperimentAdmin(admin.ModelAdmin):
     storage_footprint_display.short_description = "Storage Footprint"
     
     
+
+    @admin.display(boolean=True, description="Schedulable")
     def schedulable(self, obj):
-        return can_schedule_experiment(obj)
+        try:
+            return can_schedule_experiment(obj)
+        except Exception:
+            return False
+
     
     schedulable.boolean = True
     schedulable.short_description = "Schedulable"

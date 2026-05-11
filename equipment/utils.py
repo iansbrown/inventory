@@ -33,10 +33,34 @@ def can_schedule_experiment(experiment):
     """
     Returns True if all equipment requirements
     for an experiment can be met.
+
+    This function must NEVER raise.
     """
-    for req in experiment.equipment_requirements.select_related(
+    # If there are no requirements, we treat this as unschedulable
+    # (safer default than True).
+    requirements = experiment.equipment_requirements.select_related(
         "equipment_type"
-    ):
-        if available_count(req.equipment_type) < req.quantity_required:
+    )
+
+    if not requirements.exists():
+        return False
+
+    for req in requirements:
+        # Missing equipment type ⇒ cannot schedule
+        if not req.equipment_type:
             return False
+
+        # Quantity must be valid and positive
+        if not req.quantity_required or req.quantity_required <= 0:
+            return False
+
+        try:
+            available = available_count(req.equipment_type)
+        except Exception:
+            # Any error counting availability ⇒ cannot schedule
+            return False
+
+        if available < req.quantity_required:
+            return False
+
     return True
