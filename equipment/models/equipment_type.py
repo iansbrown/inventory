@@ -41,7 +41,10 @@ class EquipmentType(models.Model):
     )
 
     # ---- Physical / storage constraints ----
-    weight = models.DecimalField(null=True, blank=True)
+    weight = models.DecimalField(
+        max_digits=8, decimal_places=4,
+        validators=[MinValueValidator(Decimal("0"))],
+        null=True, blank=True,)
     is_stackable = models.BooleanField(default=False)
     max_stack_height = models.PositiveIntegerField(null=True, blank=True)
     requires_heavy_duty_shelving = models.BooleanField(default=False)
