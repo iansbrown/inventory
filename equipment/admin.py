@@ -143,11 +143,6 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     
     #autocomplete_fields = ("equipment_type",)
 
-    exclude = (
-        "storage_length",
-        "storage_width",
-        "storage_height",
-    )
 
     inlines = [
         RepairLogInline,
