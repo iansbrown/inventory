@@ -40,36 +40,6 @@ class EquipmentItem(models.Model):
         help_text="Barcode / human-readable inventory identifier"
     )
 
-    name = models.CharField(
-        max_length=255,
-        help_text="Canonical item name"
-    )
-
-    description = models.TextField(
-        blank=True,
-        help_text="Detailed description of the item"
-    )
-
-    keywords = models.TextField(
-        blank=True,
-        help_text="Alternate names, synonyms, and search terms"
-    )
-
-    category = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text="Broad category, e.g. Optics, Electronics, Mechanics"
-    )
-
-    manufacturer = models.CharField(
-        max_length=255,
-        blank=True
-    )
-
-    model_number = models.CharField(
-        max_length=255,
-        blank=True
-    )
 
     serial_number = models.CharField(
         max_length=255,
@@ -117,88 +87,6 @@ class EquipmentItem(models.Model):
         help_text="Defines how this item is tracked"
     )
 
-    quantity = models.PositiveIntegerField(
-        default=1,
-        help_text="Number of items (only >1 for bulk items)"
-    )
-
-    
-    # ---- Storage geometry (authoritative) ----
-    storage_length = models.FloatField(
-        null=True,
-        blank=True,
-        help_text="Length of item in storage"
-    )
-
-    storage_width = models.FloatField(
-        null=True,
-        blank=True,
-        help_text="Width of item in storage"
-    )
-
-    storage_height = models.FloatField(
-        null=True,
-        blank=True,
-        help_text="Height of item in storage"
-    )
-
-    # ---- Derived geometry (system managed) ----
-    storage_footprint_area = models.FloatField(
-        null=True,
-        blank=True,
-        editable=False
-    )
-
-    storage_volume = models.FloatField(
-        null=True,
-        blank=True,
-        editable=False
-    )
-
-    # ---- Setup geometry ----
-    setup_length = models.FloatField(null=True, blank=True)
-    setup_width = models.FloatField(null=True, blank=True)
-    setup_height = models.FloatField(null=True, blank=True)
-
-    # ---- Physical / storage constraints ----
-    weight = models.FloatField(null=True, blank=True)
-
-    is_stackable = models.BooleanField(default=False)
-
-    max_stack_height = models.PositiveIntegerField(
-        null=True,
-        blank=True,
-        help_text="Maximum number of identical items that can be stacked"
-    )
-
-    STORAGE_ORIENTATION_ANY = "any"
-    STORAGE_ORIENTATION_FLAT = "flat"
-    STORAGE_ORIENTATION_UPRIGHT = "upright"
-
-    STORAGE_ORIENTATION_CHOICES = [
-        (STORAGE_ORIENTATION_ANY, "Any"),
-        (STORAGE_ORIENTATION_FLAT, "Flat"),
-        (STORAGE_ORIENTATION_UPRIGHT, "Upright"),
-    ]
-
-    storage_orientation = models.CharField(
-        max_length=20,
-        choices=STORAGE_ORIENTATION_CHOICES,
-        default=STORAGE_ORIENTATION_ANY
-    )
-
-    requires_heavy_duty_shelving = models.BooleanField(default=False)
-
-    # ---- Environmental requirements ----
-    requires_climate_control = models.BooleanField(default=False)
-    requires_dark_storage = models.BooleanField(default=False)
-    requires_secure_storage = models.BooleanField(default=False)
-
-    hazard_class = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True
-    )
 
     # ---- Usage and planning ----
     ACCESS_HIGH = "high"
@@ -257,6 +145,7 @@ class EquipmentItem(models.Model):
     # Validation and derived-field logic
     # ------------------------------------------------------------------
 
+    '''
     def has_storage_dimensions(self):
         return (
             self.storage_length_m is not None
@@ -266,15 +155,23 @@ class EquipmentItem(models.Model):
 
     has_storage_dimensions.boolean = True
     has_storage_dimensions.short_description = "Has Storage Dimensions"
+    '''
 
 
     @property
     def storage_volume_m3(self):
+        if not self.equipment_type:
+            return None
         return self.equipment_type.storage_volume_m3
+
     
+
     @property
     def storage_footprint_m2(self):
+        if not self.equipment_type:
+            return None
         return self.equipment_type.storage_footprint_m2
+
 
 
     @property
@@ -286,5 +183,7 @@ class EquipmentItem(models.Model):
 
 
     def __str__(self):
-        return f"{self.inventory_tag} — {self.name}"
+        if self.equipment_type:
+            return f"{self.inventory_tag} — {self.equipment_type.name}"
+        return self.inventory_tag
 

@@ -59,8 +59,15 @@ class UniversityAdminSite(admin.AdminSite):
         return context
 
 class RepairLogInline(admin.TabularInline):
+    """
+    Repair history for an individual equipment item.
+    Item-level lifecycle data; does not belong on EquipmentType.
+    """
     model = RepairLog
     extra = 0
+    show_change_link = True
+    ordering = ("-date_reported",)
+
     fields = (
         "date_reported",
         "issue_description",
@@ -70,8 +77,10 @@ class RepairLogInline(admin.TabularInline):
         "outcome",
         "move_related",
     )
+
     readonly_fields = ()
-    show_change_link = True
+    can_delete = False 
+
     
 class EquipmentImageInline(admin.TabularInline):
     model = EquipmentImage
@@ -121,20 +130,113 @@ class EquipmentItemInline(admin.TabularInline):
     autocomplete_fields = ("current_location",)
     show_change_link = True
 
+
 @admin.register(EquipmentType)
 class EquipmentTypeAdmin(admin.ModelAdmin):
+    """
+    Admin for interchangeable equipment types.
+    All physical and storage properties live here.
+    """
+
     list_display = (
         "name",
+        "category",
         "manufacturer",
         "model_number",
+        "has_storage_dimensions",
         "storage_volume_display",
     )
-    search_fields = ("name", "model_number")
+
+    list_filter = (
+        "category",
+        "manufacturer",
+        "requires_heavy_duty_shelving",
+        "requires_climate_control",
+        "requires_secure_storage",
+        "storage_orientation",
+    )
+
+    search_fields = (
+        "name",
+        "model_number",
+        "manufacturer",
+        "keywords",
+    )
+
+    ordering = ("name",)
+
+    fieldsets = (
+        ("Identification", {
+            "fields": (
+                "name",
+                "description",
+                "keywords",
+                "category",
+                "manufacturer",
+                "model_number",
+            )
+        }),
+        ("Physical Constraints", {
+            "fields": (
+                "weight",
+                "is_stackable",
+                "max_stack_height",
+                "storage_orientation",
+                "requires_heavy_duty_shelving",
+            )
+        }),
+        ("Environmental Requirements", {
+            "fields": (
+                "requires_climate_control",
+                "requires_dark_storage",
+                "requires_secure_storage",
+                "hazard_class",
+            )
+        }),
+        ("Storage Dimensions (Canonical, meters)", {
+            "fields": (
+                "storage_length_m",
+                "storage_width_m",
+                "storage_height_m",
+            )
+        }),
+        ("Derived Storage (Read‑Only)", {
+            "fields": (
+                "storage_footprint_display",
+                "storage_volume_display",
+            )
+        }),
+        ("Metadata", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+        }),
+    )
+
+    readonly_fields = (
+        "storage_footprint_display",
+        "storage_volume_display",
+        "created_at",
+        "updated_at",
+    )
+
+    # --- Read-only display helpers ---
 
     def storage_volume_display(self, obj):
-        if obj.storage_volume_m3 is None:
-            return "—"
-        return f"{obj.storage_volume_m3:.3f} m³"
+        vol = obj.storage_volume_m3
+        return f"{vol:.3f} m³" if vol is not None else "—"
+
+    storage_volume_display.short_description = "Storage Volume"
+
+    def storage_footprint_display(self, obj):
+        area = obj.storage_footprint_m2
+        return f"{area:.3f} m²" if area is not None else "—"
+
+    storage_footprint_display.short_description = "Storage Footprint"
+
+    # No inlines yet — add after auditing
+    inlines = []
 '''
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
@@ -302,23 +404,71 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         
     actions = ["clear_migration_flags"]
     '''
+
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
+    """
+    Admin for individual equipment items.
+    Physical characteristics live on EquipmentType.
+    This admin is lifecycle- and tracking-focused.
+    """
+
     list_display = (
         "inventory_tag",
-        "name",
         "equipment_type",
+        "tracking_level",
         "status",
         "current_location",
+        "access_frequency",
     )
 
-    search_fields = ("inventory_tag", "name")
+    list_filter = (
+        "tracking_level",
+        "status",
+        "access_frequency",
+        "equipment_type",
+    )
+
+    search_fields = (
+        "inventory_tag",
+        "serial_number",
+        "asset_tag",
+    )
+
     ordering = ("inventory_tag",)
 
-    readonly_fields = ("created_at", "updated_at")
+    fields = (
+        # Identification
+        "inventory_tag",
+        "equipment_type",
+        "serial_number",
+        "asset_tag",
 
-    inlines = []  # re-add later
+        # Relationships
+        "purchase_record",
+        "current_location",
 
+        # Tracking & lifecycle
+        "tracking_level",
+        "status",
+        "access_frequency",
+
+        # Notes
+        "handling_notes",
+        "migration_flags",
+
+        # Metadata
+        "created_at",
+        "updated_at",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+    # Inlines
+    inlines = [RepairLogInline]
 
 @admin.register(PurchaseRecord)
 class PurchaseRecordAdmin(admin.ModelAdmin):
