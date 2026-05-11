@@ -13,6 +13,7 @@ from equipment.units import to_meters
 from equipment.units import meters_to_inches, meters_to_feet
 
 
+
 class Experiment(models.Model):
     """
     A lab experiment.
@@ -58,33 +59,50 @@ class Experiment(models.Model):
     # Derived Storage Properties (equipment-driven)
     # ------------------------------------------------------------------
 
+@property
+def storage_volume_m3(self):
+    total = Decimal("0")
+    used = False
 
-    @property
-    def storage_volume_m3(self):
-        total = Decimal("0")
-        for req in self.equipment_requirements.select_related("equipment_type"):
-            vol = req.equipment_type.storage_volume_m3
-            if vol is None:
-                continue
-            total += vol * req.quantity_required
-        return total
-    
+    for req in self.equipment_requirements.select_related("equipment_type"):
+        if not req.equipment_type:
+            continue
+        vol = req.equipment_type.storage_volume_m3
+        if vol is None:
+            continue
+        total += vol * req.quantity_required
+        used = True
 
-        
+    return total if used else None
+
     @property
     def storage_footprint_m2(self):
         total = Decimal("0")
+        used = False
+        
         for req in self.equipment_requirements.select_related("equipment_type"):
+            if not req.equipment_type:
+                continue
             area = req.equipment_type.storage_footprint_m2
             if area is None:
                 continue
             total += area * req.quantity_required
-        return total
-    
-    
-        def __str__(self):
-            return f"{self.course_code} — {self.experiment_title}"
+            used = True
+        
+        return total if used else None
 
+    # Optional helper
+    def has_storage_dimensions(self):
+        return any(
+            req.equipment_type and req.equipment_type.has_storage_dimensions()
+            for req in self.equipment_requirements.all()
+        )
+
+    has_storage_dimensions.boolean = True
+    has_storage_dimensions.short_description = "Has Storage Data"
+
+    def __str__(self):
+        return f"{self.course_code} — {self.experiment_title}"
 
     class Meta:
         ordering = ["course_code"]

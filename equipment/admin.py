@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.utils.html import format_html
 from equipment.duplication import duplicate_equipment_item
 from equipment.duplication import sequential_tag_generator
-
+from equipment.utils import can_schedule_experiment
 
 from .forms import (
     EquipmentItemAdminForm,
@@ -516,14 +516,8 @@ class StorageLocationAdmin(admin.ModelAdmin):
 class ExperimentAdmin(admin.ModelAdmin):
     """
     Admin configuration for Experiment.
-
-    Experiments do not have intrinsic dimensions.
-    All storage requirements are derived from linked equipment.
+    Storage is derived from required equipment types.
     """
-
-    # ------------------------------------------------------------------
-    # List View
-    # ------------------------------------------------------------------
 
     list_display = (
         "course_code",
@@ -533,6 +527,7 @@ class ExperimentAdmin(admin.ModelAdmin):
         "move_sensitive",
         "storage_volume_display",
         "storage_footprint_display",
+        "schedulable",
     )
 
     list_filter = (
@@ -547,9 +542,33 @@ class ExperimentAdmin(admin.ModelAdmin):
         "experiment_title",
     )
 
-    # ------------------------------------------------------------------
-    # Detail View
-    # ------------------------------------------------------------------
+    fieldsets = (
+        ("Identity", {
+            "fields": (
+                "course_code",
+                "experiment_title",
+                "preferred_lab_type",
+            )
+        }),
+        ("Constraints", {
+            "fields": (
+                "requires_fixed_installation",
+                "move_sensitive",
+            )
+        }),
+        ("Derived Storage", {
+            "fields": (
+                "storage_volume_display",
+                "storage_footprint_display",
+            )
+        }),
+        ("Metadata", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+        }),
+    )
 
     readonly_fields = (
         "storage_volume_display",
@@ -559,24 +578,22 @@ class ExperimentAdmin(admin.ModelAdmin):
     )
 
     inlines = [ExperimentEquipmentRequirementInline]
-    
-
-    # ------------------------------------------------------------------
-    # Read-only display helpers
-    # ------------------------------------------------------------------
 
     def storage_volume_display(self, obj):
         vol = obj.storage_volume_m3
-        if vol is None:
-            return "—"
-        return f"{vol:.3f} m³"
+        return f"{vol:.3f} m³" if vol is not None else "—"
 
     storage_volume_display.short_description = "Storage Volume"
 
     def storage_footprint_display(self, obj):
         area = obj.storage_footprint_m2
-        if area is None:
-            return "—"
-        return f"{area:.3f} m²"
+        return f"{area:.3f} m²" if area is not None else "—"
 
     storage_footprint_display.short_description = "Storage Footprint"
+    
+    
+    def schedulable(self, obj):
+        return can_schedule_experiment(obj)
+    
+    schedulable.boolean = True
+    schedulable.short_description = "Schedulable"

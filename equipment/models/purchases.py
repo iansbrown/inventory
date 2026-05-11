@@ -6,7 +6,7 @@ Created on Wed Apr 22 15:31:32 2026
 """
 
 from django.db import models
-
+from django.core.exceptions import ValidationError
 
 class PurchaseRecord(models.Model):
     """
@@ -149,4 +149,29 @@ class PurchaseRecord(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.vendor} — FY{self.fiscal_year} (Access ID {self.legacy_access_id})"
+        base = f"{self.vendor} — FY{self.fiscal_year}"
+        if self.legacy_access_id:
+            return f"{base} (Access ID {self.legacy_access_id})"
+        return base
+    
+
+    def clean(self):
+        errors = {}
+    
+        if self.backorder_flag:
+            if not self.backorder_quantity or self.backorder_quantity <= 0:
+                errors["backorder_quantity"] = (
+                    "Backorder quantity must be provided when backorder is indicated."
+                )
+        else:
+            if self.backorder_quantity:
+                errors["backorder_quantity"] = (
+                    "Backorder quantity should be empty if no backorder exists."
+                )
+            if self.backorder_received_date:
+                errors["backorder_received_date"] = (
+                    "Backorder received date should be empty if no backorder exists."
+                )
+    
+        if errors:
+            raise ValidationError(errors)
