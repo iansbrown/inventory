@@ -13,7 +13,7 @@ from equipment.models import Experiment
 from scheduling.conflicts import detect_equipment_conflicts
 from equipment.storage import total_storage_for_courses
 from equipment.utils import equipment_list_for_experiment
-from experiments.models import ExperimentEquipmentRequirement
+from equipment.models import ExperimentEquipmentRequirement
 
 
 
