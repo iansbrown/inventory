@@ -22,59 +22,49 @@ from .models import (
 
 
 class StorageLocationAdminForm(forms.ModelForm):
-    DIMENSION_UNIT_CHOICES = (
-        ("m", "Meters"),
-        ("cm", "Centimeters"),
-        ("in", "Inches"),
-        ("ft", "Feet"),
-    )
-
-    dimension_unit = forms.ChoiceField(
-        choices=DIMENSION_UNIT_CHOICES,
-        initial="m",
-        required=False,
-        label="Capacity Units"
-    )
-
     usable_length_input = forms.DecimalField(
-        required=False,
-        min_value=0,
         label="Usable Length",
+        required=False,
+        min_value=Decimal("0"),
     )
-
     usable_width_input = forms.DecimalField(
-        required=False,
-        min_value=0,
         label="Usable Width",
-    )
-
-    usable_height_input = forms.DecimalField(
         required=False,
-        min_value=0,
+        min_value=Decimal("0"),
+    )
+    usable_height_input = forms.DecimalField(
         label="Usable Height",
+        required=False,
+        min_value=Decimal("0"),
     )
 
     class Meta:
         model = StorageLocation
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Populate inputs when editing existing object
+        if self.instance and self.instance.pk:
+            self.fields["usable_length_input"].initial = self.instance.usable_length_m
+            self.fields["usable_width_input"].initial = self.instance.usable_width_m
+            self.fields["usable_height_input"].initial = self.instance.usable_height_m
+
     def clean(self):
         cleaned = super().clean()
-        unit = cleaned.get("dimension_unit") or "m"
 
-        cleaned["usable_length_m"] = to_meters(
-            cleaned.get("usable_length_input"), unit
-        )
-        cleaned["usable_width_m"] = to_meters(
-            cleaned.get("usable_width_input"), unit
-        )
-        cleaned["usable_height_m"] = to_meters(
-            cleaned.get("usable_height_input"), unit
-        )
+        # Only assign if user actually supplied a value
+        for field_name, model_field in [
+            ("usable_length_input", "usable_length_m"),
+            ("usable_width_input", "usable_width_m"),
+            ("usable_height_input", "usable_height_m"),
+        ]:
+            val = cleaned.get(field_name)
+            if val is not None:
+                setattr(self.instance, model_field, val)
 
         return cleaned
-
-
 
 
 class ExperimentAdminForm(forms.ModelForm):
