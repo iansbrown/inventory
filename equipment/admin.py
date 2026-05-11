@@ -171,6 +171,41 @@ class EquipmentItemInline(admin.TabularInline):
         "status",
     )
 
+class PurchaseEquipmentItemInline(admin.TabularInline):
+    """
+    Equipment items created as part of this purchase.
+    Instance-level view; does not manage type-level properties.
+    """
+    model = EquipmentItem
+    fk_name = "purchase_record"
+    extra = 0
+    show_change_link = True
+    can_delete = False
+
+    fields = (
+        "inventory_tag",
+        "equipment_type",
+        "tracking_level",
+        "serial_number",
+        "asset_tag",
+        "current_location",
+        "status",
+    )
+
+    autocomplete_fields = (
+        "equipment_type",
+        "current_location",
+    )
+
+    readonly_fields = (
+        "inventory_tag",
+        "equipment_type",
+        "tracking_level",
+        "serial_number",
+        "asset_tag",
+        "current_location",
+        "status",
+    )
 
 @admin.register(EquipmentType)
 class EquipmentTypeAdmin(admin.ModelAdmin):
@@ -350,7 +385,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
 class PurchaseRecordAdmin(admin.ModelAdmin):
 
     inlines = [
-        EquipmentItemInline,
+        PurchaseEquipmentItemInline,
     ]
 
     
