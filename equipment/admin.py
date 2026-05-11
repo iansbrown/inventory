@@ -135,7 +135,7 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
         if obj.storage_volume_m3 is None:
             return "—"
         return f"{obj.storage_volume_m3:.3f} m³"
-
+'''
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
     
@@ -143,7 +143,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     
     #autocomplete_fields = ("equipment_type",)
 
-
+   
     inlines = [
         RepairLogInline,
         EquipmentImageInline,
@@ -281,13 +281,13 @@ class EquipmentItemAdmin(admin.ModelAdmin):
                 f"Created {len(duplicates) + 1} identical equipment items."
             )
             
-            '''
+            
     def has_storage_dimensions(self, obj):
         return bool(obj.storage_length and obj.storage_width)
 
     has_storage_dimensions.boolean = True
     has_storage_dimensions.short_description = "Has Storage Dimensions"
-    '''
+   
 
     autocomplete_fields = ("purchase_record", "current_location")
 
@@ -301,6 +301,23 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         queryset.update(migration_flags="")
         
     actions = ["clear_migration_flags"]
+    '''
+@admin.register(EquipmentItem)
+class EquipmentItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "inventory_tag",
+        "name",
+        "equipment_type",
+        "status",
+        "current_location",
+    )
+
+    search_fields = ("inventory_tag", "name")
+    ordering = ("inventory_tag",)
+
+    readonly_fields = ("created_at", "updated_at")
+
+    inlines = []  # re-add later
 
 
 @admin.register(PurchaseRecord)
