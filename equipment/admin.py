@@ -139,7 +139,7 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
 @admin.register(EquipmentItem)
 class EquipmentItemAdmin(admin.ModelAdmin):
     
-    form = EquipmentItemAdminForm
+    #form = EquipmentItemAdminForm
     
     #autocomplete_fields = ("equipment_type",)
 
