@@ -7,6 +7,7 @@ Created on Tue May  5 13:33:09 2026
 
 from decimal import Decimal
 from django import forms
+from equipment.utils import DimensionInputMixin
 from equipment.units import meters_to_inches, meters_to_feet, to_meters
 from .models import (
     EquipmentItem,
@@ -16,27 +17,17 @@ from .models import (
     EquipmentImage,
     Experiment,
     EquipmentExperiment,
+    EquipmentType
 )
 
 
 
-class StorageLocationAdminForm(forms.ModelForm):
-    usable_length_input = forms.DecimalField(
-        label="Usable Length",
-        required=False,
-        min_value=Decimal("0"),
-    )
-    usable_width_input = forms.DecimalField(
-        label="Usable Width",
-        required=False,
-        min_value=Decimal("0"),
-    )
-    usable_height_input = forms.DecimalField(
-        label="Usable Height",
-        required=False,
-        min_value=Decimal("0"),
-    )
-    
+
+class StorageLocationAdminForm(DimensionInputMixin, forms.ModelForm):
+    usable_length_input = forms.DecimalField(required=False, min_value=0)
+    usable_width_input = forms.DecimalField(required=False, min_value=0)
+    usable_height_input = forms.DecimalField(required=False, min_value=0)
+
     class Meta:
         model = StorageLocation
         fields = "__all__"
@@ -44,8 +35,7 @@ class StorageLocationAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Populate inputs when editing existing object
-        if self.instance and self.instance.pk:
+        if self.instance.pk:
             self.fields["usable_length_input"].initial = self.instance.usable_length_m
             self.fields["usable_width_input"].initial = self.instance.usable_width_m
             self.fields["usable_height_input"].initial = self.instance.usable_height_m
@@ -53,17 +43,17 @@ class StorageLocationAdminForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
 
-        # Only assign if user actually supplied a value
-        for field_name, model_field in [
-            ("usable_length_input", "usable_length_m"),
-            ("usable_width_input", "usable_width_m"),
-            ("usable_height_input", "usable_height_m"),
-        ]:
-            val = cleaned.get(field_name)
-            if val is not None:
-                setattr(self.instance, model_field, val)
+        self.apply_dimension_inputs(
+            self.instance,
+            {
+                "usable_length_input": "usable_length_m",
+                "usable_width_input": "usable_width_m",
+                "usable_height_input": "usable_height_m",
+            }
+        )
 
         return cleaned
+
 
 
 class ExperimentAdminForm(forms.ModelForm):
@@ -71,6 +61,41 @@ class ExperimentAdminForm(forms.ModelForm):
         model = Experiment
         fields = "__all__"
 
+
+
+
+class EquipmentTypeAdminForm(DimensionInputMixin, forms.ModelForm):
+    storage_length_input = forms.DecimalField(required=False, min_value=0)
+    storage_width_input = forms.DecimalField(required=False, min_value=0)
+    storage_height_input = forms.DecimalField(required=False, min_value=0)
+
+    class Meta:
+        model = EquipmentType
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Populate inputs on edit
+        if self.instance.pk:
+            self.fields["storage_length_input"].initial = self.instance.storage_length_m
+            self.fields["storage_width_input"].initial = self.instance.storage_width_m
+            self.fields["storage_height_input"].initial = self.instance.storage_height_m
+
+    def clean(self):
+        cleaned = super().clean()
+
+        self.apply_dimension_inputs(
+            self.instance,
+            {
+                "storage_length_input": "storage_length_m",
+                "storage_width_input": "storage_width_m",
+                "storage_height_input": "storage_height_m",
+            }
+        )
+
+        return cleaned
+'''   
 class EquipmentTypeAdminForm(forms.ModelForm):
     DIMENSION_UNIT_CHOICES = (
         ("m", "Meters"),
@@ -168,7 +193,7 @@ class EquipmentTypeAdminForm(forms.ModelForm):
             instance.save()
     
         return instance
-    
+'''    
 class EquipmentItemAdminForm(forms.ModelForm):
     
     create_duplicates = forms.BooleanField(

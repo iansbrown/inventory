@@ -4,7 +4,65 @@ Created on Thu May  7 16:19:41 2026
 
 @author: ianbrown
 """
+from decimal import Decimal
+from django import forms
 
+
+METERS_PER_UNIT = {
+    "m": Decimal("1"),
+    "cm": Decimal("0.01"),
+    "ft": Decimal("0.3048"),
+    "in": Decimal("0.0254"),
+}
+
+
+DIMENSION_UNIT_CHOICES = [
+    ("m", "Meters"),
+    ("cm", "Centimeters"),
+    ("ft", "Feet"),
+    ("in", "Inches"),
+]
+
+
+class DimensionInputMixin(forms.Form):
+    """
+    Adds unit-aware dimension input fields and
+    safely persists canonical meter values.
+    """
+
+    dimension_unit = forms.ChoiceField(
+        choices=DIMENSION_UNIT_CHOICES,
+        required=False,
+        initial="m",
+        label="Dimension Unit",
+        help_text="Unit for entered dimensions"
+    )
+
+    def _convert_to_meters(self, value, unit):
+        if value is None:
+            return None
+        factor = METERS_PER_UNIT.get(unit, Decimal("1"))
+        return (value * factor).quantize(Decimal("0.0001"))
+
+    def apply_dimension_inputs(self, instance, mapping):
+        """
+        mapping = {
+            "input_field": "model_field_m",
+            ...
+        }
+        """
+        unit = self.cleaned_data.get("dimension_unit") or "m"
+
+        for input_field, model_field in mapping.items():
+            raw_val = self.cleaned_data.get(input_field)
+
+            # ✅ Only write if user actually entered a value
+            if raw_val is not None:
+                setattr(
+                    instance,
+                    model_field,
+                    self._convert_to_meters(raw_val, unit)
+                )
 
 def equipment_list_for_experiment(experiment):
     """

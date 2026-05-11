@@ -270,9 +270,11 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
         }),
         ("Storage Dimensions (Canonical, meters)", {
             "fields": (
-                "storage_length_m",
-                "storage_width_m",
-                "storage_height_m",
+                "dimension_unit",
+                "storage_length_input",
+                "storage_width_input",
+                "storage_height_input",
+
             )
         }),
         ("Derived Storage (Read‑Only)", {
@@ -499,9 +501,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
 
         ("Capacity", {
             "fields": (
+                "dimension_unit",
                 "usable_length_input",
                 "usable_width_input",
                 "usable_height_input",
+
             )
         }),
 
