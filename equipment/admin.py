@@ -154,7 +154,6 @@ class EquipmentItemInline(admin.TabularInline):
     form = EquipmentItemInlineForm
     extra = 0
     show_change_link = True
-    can_delete = False
 
     fields = (
         "inventory_tag",
