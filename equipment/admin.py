@@ -4,7 +4,7 @@ from equipment.duplication import duplicate_equipment_item
 from equipment.duplication import sequential_tag_generator
 from equipment.utils import can_schedule_experiment
 from django.urls import reverse
-
+from django.urls.exceptions import NoReverseMatch
 
 
 from .forms import (
@@ -640,19 +640,18 @@ class ExperimentAdmin(admin.ModelAdmin):
     schedulable.boolean = True
     schedulable.short_description = "Schedulable"
     
+    
     def equipment_requirements_link(self, obj):
         if not obj.pk:
             return "—"
     
-        url = reverse(
-            "experiment_equipment",
-            args=[obj.pk],
-        )
+        try:
+            url = reverse("experiment_equipment", args=[obj.pk])
+        except NoReverseMatch:
+            return "Equipment view unavailable"
     
         return format_html(
-            '<a class="button" href="{}" target="_blank">'
-            'View Equipment Requirements'
-            '</a>',
+            '<a href="{}" target="_blank">View Equipment Requirements</a>',
             url,
         )
     
