@@ -31,6 +31,7 @@ urlpatterns = [
     path("", root_redirect),
     path("admin/", admin.site.urls),
     path("schedules/", include("scheduling.urls")),
+    path("equipment/", include("equipment.urls")),
 ]
 
 if settings.DEBUG:
