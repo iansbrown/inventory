@@ -249,9 +249,14 @@ class LabOfferingAdmin(admin.ModelAdmin):
     conflict_summary.short_description = "Equipment Conflict Summary"
     
     
+
     def door_schedule_link(self, obj):
-        if not obj.pk:
+        if not obj or not obj.pk:
             return "—"
+    
+        # Guard against missing relations
+        if not obj.lab_course or not obj.academic_term:
+            return "Unavailable"
     
         try:
             url = reverse(
@@ -262,7 +267,7 @@ class LabOfferingAdmin(admin.ModelAdmin):
                 ],
             )
         except NoReverseMatch:
-            return "Unavailable"
+            return "Schedule unavailable"
     
         return format_html(
             '<a href="{}" target="_blank">View Door Schedule</a>',
