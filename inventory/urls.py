@@ -20,6 +20,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
+from scheduling.views import experiment_equipment_view
+
+
 
 def root_redirect(request):
     return redirect("/admin/")
@@ -35,3 +38,12 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT
     )
+    
+    
+urlpatterns = [
+    path(
+        "experiments/<int:experiment_id>/equipment/",
+        experiment_equipment_view,
+        name="experiment_equipment",
+    ),
+]

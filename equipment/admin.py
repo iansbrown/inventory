@@ -3,6 +3,9 @@ from django.utils.html import format_html
 from equipment.duplication import duplicate_equipment_item
 from equipment.duplication import sequential_tag_generator
 from equipment.utils import can_schedule_experiment
+from django.urls import reverse
+from django.utils.html import format_html
+
 
 from .forms import (
     EquipmentItemAdminForm,
@@ -589,6 +592,11 @@ class ExperimentAdmin(admin.ModelAdmin):
                 "storage_footprint_display",
             )
         }),
+        ("Planning & Equipment", {
+            "fields": (
+                "equipment_requirements_link",
+            )
+        }),
         ("Metadata", {
             "fields": (
                 "created_at",
@@ -602,6 +610,7 @@ class ExperimentAdmin(admin.ModelAdmin):
         "storage_footprint_display",
         "created_at",
         "updated_at",
+        "equipment_requirements_link",
     )
 
     inlines = [ExperimentEquipmentRequirementInline]
@@ -631,3 +640,21 @@ class ExperimentAdmin(admin.ModelAdmin):
     
     schedulable.boolean = True
     schedulable.short_description = "Schedulable"
+    
+    def equipment_requirements_link(self, obj):
+        if not obj.pk:
+            return "—"
+    
+        url = reverse(
+            "experiment_equipment",
+            args=[obj.pk],
+        )
+    
+        return format_html(
+            '<a class="button" href="{}" target="_blank">'
+            'View Equipment Requirements'
+            '</a>',
+            url,
+        )
+    
+    equipment_requirements_link.short_description = "Equipment"
