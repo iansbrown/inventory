@@ -170,6 +170,7 @@ class EquipmentItemInline(admin.TabularInline):
     readonly_fields = (
         "inventory_tag",
         "serial_number",
+        "asset_tag",
     )
 
 class PurchaseEquipmentItemInline(admin.TabularInline):
