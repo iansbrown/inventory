@@ -23,27 +23,8 @@ from collections import defaultdict
 from equipment.models import ExperimentEquipmentRequirement
 from collections import defaultdict
 from scheduling.conflicts import detect_equipment_conflicts
+from equipment.utils import build_equipment_type_map_for_experiments
 
-
-
-def build_equipment_type_map_for_experiments(experiments):
-    """
-    experiments: iterable of Experiment objects
-
-    Returns:
-        {EquipmentType: total_required_quantity}
-    """
-    equipment_type_map = defaultdict(int)
-
-    for experiment in experiments:
-        for req in experiment.equipment_requirements.select_related(
-            "equipment_type"
-        ):
-            if not req.equipment_type:
-                continue
-            equipment_type_map[req.equipment_type] += req.quantity_required
-
-    return equipment_type_map
 
 
 @admin.register(AcademicTerm)
@@ -267,6 +248,7 @@ class LabOfferingAdmin(admin.ModelAdmin):
         "lab_course__course_title",
     )
     readonly_fields = ("conflict_summary",)
+    
     fieldsets = (
         (None, {
             "fields": (

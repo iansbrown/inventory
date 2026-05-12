@@ -6,7 +6,7 @@ Created on Thu May  7 16:19:41 2026
 """
 from decimal import Decimal
 from django import forms
-
+from collections import defaultdict
 
 METERS_PER_UNIT = {
     "m": Decimal("1"),
@@ -56,7 +56,7 @@ class DimensionInputMixin(forms.Form):
         for input_field, model_field in mapping.items():
             raw_val = self.cleaned_data.get(input_field)
 
-            # ✅ Only write if user actually entered a value
+            # Only write if user actually entered a value
             if raw_val is not None:
                 setattr(
                     instance,
@@ -124,3 +124,22 @@ def can_schedule_experiment(experiment):
             return False
 
     return True
+
+def build_equipment_type_map_for_experiments(experiments):
+    """
+    experiments: iterable of Experiment objects
+
+    Returns:
+        {EquipmentType: total_required_quantity}
+    """
+    equipment_type_map = defaultdict(int)
+
+    for experiment in experiments:
+        for req in experiment.equipment_requirements.select_related(
+            "equipment_type"
+        ):
+            if not req.equipment_type:
+                continue
+            equipment_type_map[req.equipment_type] += req.quantity_required
+
+    return equipment_type_map
