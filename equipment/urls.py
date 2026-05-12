@@ -14,7 +14,7 @@ from django.urls import path
 
 urlpatterns = [
     path(
-        "equipment/<int:experiment_id>/equipment/",
+        "experiment/<int:experiment_id>/equipment/",
         experiment_equipment_view,
         name="experiment_equipment",
     ),

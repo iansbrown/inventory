@@ -4,11 +4,10 @@ from equipment.duplication import duplicate_equipment_item
 from equipment.duplication import sequential_tag_generator
 from equipment.utils import can_schedule_experiment
 from django.urls import reverse
-from django.utils.html import format_html
+
 
 
 from .forms import (
-    EquipmentItemAdminForm,
     ExperimentAdminForm,
     StorageLocationAdminForm,
     EquipmentTypeAdminForm,
