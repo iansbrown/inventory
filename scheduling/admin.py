@@ -24,7 +24,8 @@ from equipment.models import ExperimentEquipmentRequirement
 from collections import defaultdict
 from scheduling.conflicts import detect_equipment_conflicts
 from equipment.utils import build_equipment_type_map_for_experiments
-
+from django.urls.exceptions import NoReverseMatch
+from django.urls import reverse
 
 
 @admin.register(AcademicTerm)
@@ -248,6 +249,30 @@ class LabOfferingAdmin(admin.ModelAdmin):
     conflict_summary.short_description = "Equipment Conflict Summary"
     
     
+    def door_schedule_link(self, obj):
+        if not obj.pk:
+            return "—"
+    
+        try:
+            url = reverse(
+                "lab_schedule_door",
+                args=[
+                    obj.lab_course.course_code,
+                    obj.academic_term.name,
+                ],
+            )
+        except NoReverseMatch:
+            return "Unavailable"
+    
+        return format_html(
+            '<a href="{}" target="_blank">View Door Schedule</a>',
+            url,
+        )
+    
+    door_schedule_link.short_description = "Printable Schedule"
+
+    
+    
     def get_fieldsets(self, request, obj=None):
         if obj is None:
             return (
@@ -274,6 +299,7 @@ class LabOfferingAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("conflict_summary",
                        "permanent_storage_display",
+                       "door_schedule_link",
     )
     fieldsets = (
         (None, {
