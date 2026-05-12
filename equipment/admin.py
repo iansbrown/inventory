@@ -157,6 +157,7 @@ class EquipmentItemInline(admin.TabularInline):
     fields = (
         "inventory_tag",
         "tracking_level",
+        "quantity",
         "serial_number",
         "asset_tag",
         "current_location",
@@ -167,11 +168,7 @@ class EquipmentItemInline(admin.TabularInline):
 
     readonly_fields = (
         "inventory_tag",
-        "tracking_level",
         "serial_number",
-        "asset_tag",
-        "current_location",
-        "status",
     )
 
 class PurchaseEquipmentItemInline(admin.TabularInline):

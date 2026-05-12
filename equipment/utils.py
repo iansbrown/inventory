@@ -80,12 +80,14 @@ def equipment_list_for_experiment(experiment):
     ]
 
 def available_count(equipment_type):
-    """
-    Return the number of usable (available) instances of an equipment type.
-    """
-    return equipment_type.items.filter(
-        status="available"
-    ).count()
+    total = 0
+    for item in equipment_type.items.filter(status="available"):
+        if item.tracking_level == "bulk":
+            total += item.quantity or 0
+        else:
+            total += 1
+    return total
+
 
 def can_schedule_experiment(experiment):
     """

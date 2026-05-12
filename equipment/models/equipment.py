@@ -87,6 +87,12 @@ class EquipmentItem(models.Model):
         help_text="Defines how this item is tracked"
     )
 
+    quantity = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of physical units represented by this item (bulk only)",
+    )
+
 
     # ---- Usage and planning ----
     ACCESS_HIGH = "high"
@@ -180,6 +186,16 @@ class EquipmentItem(models.Model):
             return None
         return self.storage_footprint_m2 * SQ_METER_TO_SQ_FOOT
 
+    
+    def clean(self):
+        if self.tracking_level == "bulk":
+            if self.quantity is None or self.quantity <= 0:
+                raise ValidationError({
+                    "quantity": "Bulk items must have a positive quantity."
+                })
+        else:
+            # Individual items should not carry a quantity
+            self.quantity = None
 
 
     def __str__(self):
