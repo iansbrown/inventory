@@ -36,7 +36,9 @@ class EquipmentItem(models.Model):
     # ---- Identification ----
     inventory_tag = models.CharField(
         max_length=50,
-        unique=True,
+        unique=True,     
+        blank=True,   #  allow empty in forms
+        null=True,    # allow empty in DB
         help_text="Barcode / human-readable inventory identifier"
     )
 
