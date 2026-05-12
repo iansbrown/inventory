@@ -8,6 +8,7 @@ from .forms import (
     EquipmentItemAdminForm,
     ExperimentAdminForm,
     StorageLocationAdminForm,
+    EquipmentTypeAdminForm,
 )
 
 from .models import (
@@ -212,7 +213,9 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
     Admin for interchangeable equipment types.
     All physical and storage properties live here.
     """
-
+    
+    form = EquipmentTypeAdminForm
+    
     list_display = (
         "name",
         "category",
@@ -379,8 +382,8 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     )
 
     # Inlines
-    '''inlines = [RepairLogInline,
-               EquipmentImageInline]'''
+    inlines = [RepairLogInline,
+               EquipmentImageInline]
 
 @admin.register(PurchaseRecord)
 class PurchaseRecordAdmin(admin.ModelAdmin):
