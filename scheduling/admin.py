@@ -165,9 +165,14 @@ class LabOfferingAdmin(admin.ModelAdmin):
 
 
     def permanent_storage_display(self, obj):
-        vol = obj.permanent_storage_m3
+        try:
+            vol = obj.permanent_storage_m3
+        except Exception:
+            return "Error calculating storage"
+    
         if vol is None:
             return "—"
+    
         return f"{vol:.3f} m³"
 
     permanent_storage_display.short_description = (
@@ -237,7 +242,7 @@ class LabOfferingAdmin(admin.ModelAdmin):
         except Exception as e:
             # Admin must never 500 because of readonly fields
             return format_html(
-                '<span style="color:red;">⚠ Conflict check error</span>'
+                '<span style="color:red;">Conflict check error</span>'
             )
     
     conflict_summary.short_description = "Equipment Conflict Summary"
@@ -258,9 +263,9 @@ class LabOfferingAdmin(admin.ModelAdmin):
         "lab_course__course_code",
         "lab_course__course_title",
     )
-    '''readonly_fields = ("conflict_summary",
+    readonly_fields = ("conflict_summary",
                        "permanent_storage_display",
-    )'''
+    )
     fieldsets = (
         (None, {
             "fields": (
