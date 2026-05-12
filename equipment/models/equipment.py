@@ -123,6 +123,7 @@ class EquipmentItem(models.Model):
         (STATUS_UNDER_REPAIR, "Under repair"),
         (STATUS_SURPLUS, "Surplus"),
         (STATUS_RETIRED, "Retired"),
+        
     ]
 
     status = models.CharField(

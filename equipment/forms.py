@@ -121,4 +121,19 @@ class EquipmentItemAdminForm(forms.ModelForm):
         fields = "__all__"
 
 
+class EquipmentItemInlineForm(forms.ModelForm):
+    class Meta:
+        model = EquipmentItem
+        fields = "__all__"
+
+    def clean(self):
+        cleaned = super().clean()
+
+        # Enforce a default BEFORE save if user leaves it blank
+        if not cleaned.get("status"):
+            cleaned["status"] = EquipmentItem.STATUS_AVAILABLE
+
+        return cleaned
+
+
     
