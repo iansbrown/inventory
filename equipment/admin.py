@@ -379,8 +379,8 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     )
 
     # Inlines
-    inlines = [RepairLogInline,
-               EquipmentImageInline]
+    '''inlines = [RepairLogInline,
+               EquipmentImageInline]'''
 
 @admin.register(PurchaseRecord)
 class PurchaseRecordAdmin(admin.ModelAdmin):

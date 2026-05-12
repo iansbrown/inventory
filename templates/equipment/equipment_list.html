@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>
+        {{ experiment.course_code }}
+        — {{ experiment.experiment_title }}
+        Equipment Requirements
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 2rem;
+            color: #000;
+        }
+
+        h1 {
+            margin-bottom: 0.25rem;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: normal;
+            color: #444;
+            margin-top: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 0.6rem;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .muted {
+            color: #666;
+            font-style: italic;
+        }
+
+        .admin-link {
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    {{ experiment.course_code }} —
+    {{ experiment.experiment_title }}
+</h1>
+
+{% if experiment.preferred_lab_type %}
+    <h2>
+        Preferred Lab Type: {{ experiment.preferred_lab_type }}
+    </h2>
+{% endif %}
+
+{% if equipment_list %}
+    <table>
+        <thead>
+            <tr>
+                <th>Equipment Type</th>
+                <th>Quantity Required</th>
+                <th>Storage Volume per Unit (m³)</th>
+                <th>Total Storage Volume (m³)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in equipment_list %}
+            <tr>
+                <td>
+                    {{ entry.equipment_type.name }}
+                    <span class="admin-link">
+                        {% url 'admin:equipment_equipmenttype_change'
+                            entry.equipment_type.id %}
+                            Edit
+                        </a>
+                    </span>
+                </td>
+                <td>{{ entry.quantity_required }}</td>
+                <td>
+                    {% if entry.equipment_type.storage_volume_m3 %}
+                        {{ entry.equipment_type.storage_volume_m3|floatformat:3 }}
+                    {% else %}
+                        <span class="muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if entry.equipment_type.storage_volume_m3 %}
+                        {{ entry.equipment_type.storage_volume_m3|mul:entry.quantity_required|floatformat:3 }}
+                    {% else %}
+                        <span class="muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="muted">
+        No equipment requirements have been defined for this experiment.
+    </p>
+{% endif %}
+
+</body>
+</html>
