@@ -270,17 +270,36 @@ class LabOfferingAdmin(admin.ModelAdmin):
         )
     
     door_schedule_link.short_description = "Printable Schedule"
-
-    
     
     def get_fieldsets(self, request, obj=None):
         if obj is None:
             return (
-                (None, {"fields": ("lab_course", "academic_term", "coordinator", "default_lab_room")}),
+                (None, {
+                    "fields": (
+                        "lab_course",
+                        "academic_term",
+                        "coordinator",
+                        "default_lab_room",
+                    )
+                }),
             )
-        return super().get_fieldsets(request, obj)
-
-
+    
+        return (
+            (None, {
+                "fields": (
+                    "lab_course",
+                    "academic_term",
+                    "coordinator",
+                    "default_lab_room",
+                )
+            }),
+            ("Schedules", {
+                "fields": (
+                    "door_schedule_link",
+                    "conflict_summary",
+                )
+            }),
+        )
 
     list_display = (
         "lab_course",
