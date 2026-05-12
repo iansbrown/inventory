@@ -160,8 +160,8 @@ class EquipmentItemInline(admin.TabularInline):
         "tracking_level",
         "quantity",
         "serial_number",
-        "asset_tag",
         "current_location",
+        "purchase_record",
         "status",
     )
 
