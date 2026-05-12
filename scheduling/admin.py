@@ -246,6 +246,15 @@ class LabOfferingAdmin(admin.ModelAdmin):
             )
     
     conflict_summary.short_description = "Equipment Conflict Summary"
+    
+    
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            return (
+                (None, {"fields": ("lab_course", "academic_term", "coordinator", "default_lab_room")}),
+            )
+        return super().get_fieldsets(request, obj)
+
 
 
     list_display = (
@@ -280,8 +289,8 @@ class LabOfferingAdmin(admin.ModelAdmin):
         }),
     )
 
-    '''inlines = [
+    inlines = [
         ScheduleWeekInline,
         LabSectionInline,
-    ]'''
+    ]
     
