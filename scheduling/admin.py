@@ -162,9 +162,7 @@ class LabSectionInline(admin.TabularInline):
 @admin.register(LabOffering)
 class LabOfferingAdmin(admin.ModelAdmin):
     
-    readonly_fields = (
-        "permanent_storage_display",
-    )
+
 
     def permanent_storage_display(self, obj):
         vol = obj.permanent_storage_m3
@@ -199,35 +197,48 @@ class LabOfferingAdmin(admin.ModelAdmin):
     def conflict_summary(self, obj):
         """
         Returns an HTML summary of weeks with conflicts.
+        MUST NEVER RAISE.
         """
-        rows = []
-        
-        for week in obj.schedule_weeks.prefetch_related(
-            "meetings__experiment"
-        ):
-            experiments = [m.experiment for m in week.meetings.all() if m.experiment]
-        
-            equipment_type_map = build_equipment_type_map_for_experiments(
-                experiments
-            )
-        
-            conflicts = detect_equipment_conflicts(equipment_type_map)
-        
-            if conflicts:
-                rows.append(
-                    f"<li><strong>Week {week.week_number}</strong>: "
-                    + ", ".join(
-                        f"{c['equipment_type'].name} (short {c['shortfall']})"
-                        for c in conflicts
-                    )
-                    + "</li>"
+        try:
+            rows = []
+    
+            for week in obj.schedule_weeks.prefetch_related("meetings__experiment"):
+                experiments = [
+                    m.experiment
+                    for m in week.meetings.all()
+                    if m.experiment
+                ]
+    
+                if not experiments:
+                    continue
+    
+                equipment_type_map = build_equipment_type_map_for_experiments(
+                    experiments
                 )
-        
-        if not rows:
-            return "No equipment conflicts detected."
-        
-        return format_html("<ul>{}</ul>", format_html("".join(rows)))
-
+    
+                conflicts = detect_equipment_conflicts(equipment_type_map)
+    
+                if conflicts:
+                    rows.append(
+                        f"<li><strong>Week {week.week_number}</strong>: "
+                        + ", ".join(
+                            f"{c['equipment_type'].name} (short {c['shortfall']})"
+                            for c in conflicts
+                            if c.get("equipment_type")
+                        )
+                        + "</li>"
+                    )
+    
+            if not rows:
+                return "No equipment conflicts detected."
+    
+            return format_html("<ul>{}</ul>", format_html("".join(rows)))
+    
+        except Exception as e:
+            # Admin must never 500 because of readonly fields
+            return format_html(
+                '<span style="color:red;">⚠ Conflict check error</span>'
+            )
     
     conflict_summary.short_description = "Equipment Conflict Summary"
 
@@ -247,8 +258,9 @@ class LabOfferingAdmin(admin.ModelAdmin):
         "lab_course__course_code",
         "lab_course__course_title",
     )
-    readonly_fields = ("conflict_summary",)
-    
+    readonly_fields = ("conflict_summary",
+                       "permanent_storage_display",
+    )
     fieldsets = (
         (None, {
             "fields": (
