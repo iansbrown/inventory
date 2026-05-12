@@ -280,8 +280,8 @@ class LabOfferingAdmin(admin.ModelAdmin):
         }),
     )
 
-    inlines = [
+    '''inlines = [
         ScheduleWeekInline,
         LabSectionInline,
-    ]
+    ]'''
     
