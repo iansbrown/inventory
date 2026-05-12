@@ -11,6 +11,7 @@ from .forms import (
     ExperimentAdminForm,
     StorageLocationAdminForm,
     EquipmentTypeAdminForm,
+    EquipmentItemInlineForm
 )
 
 from .models import (
@@ -150,6 +151,7 @@ class EquipmentItemInline(admin.TabularInline):
     """
     model = EquipmentItem
     fk_name = "equipment_type"
+    form = EquipmentItemInlineForm
     extra = 0
     show_change_link = True
     can_delete = False
