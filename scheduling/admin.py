@@ -259,7 +259,7 @@ class LabOfferingAdmin(admin.ModelAdmin):
         "lab_course__course_title",
     )
     readonly_fields = ("conflict_summary",
-                       "permanent_storage_display",
+                       #"permanent_storage_display",
     )
     fieldsets = (
         (None, {
