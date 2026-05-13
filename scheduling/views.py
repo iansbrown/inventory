@@ -17,6 +17,7 @@ from equipment.models import ExperimentEquipmentRequirement
 from equipment.utils import build_equipment_type_map_for_experiments
 
 
+
 def term_equipment_conflicts_view(request, term_id):
     term = get_object_or_404(AcademicTerm, id=term_id)
 
@@ -28,20 +29,30 @@ def term_equipment_conflicts_view(request, term_id):
         weeks_with_conflicts = []
 
         for week in offering.schedule_weeks.prefetch_related("meetings__experiment"):
-            experiments = [
-                m.experiment for m in week.meetings.all() if m.experiment
-            ]
 
-            if not experiments:
-                continue
+            meeting_conflicts = []
 
-            equipment_type_map = build_equipment_type_map_for_experiments(experiments)
-            conflicts = detect_equipment_conflicts(equipment_type_map)
+            # ✅ FIX: now checking EACH meeting independently
+            for meeting in week.meetings.all():
+                if not meeting.experiment:
+                    continue
 
-            if conflicts:
+                equipment_type_map = build_equipment_type_map_for_experiments(
+                    [meeting.experiment]
+                )
+
+                conflicts = detect_equipment_conflicts(equipment_type_map)
+
+                if conflicts:
+                    meeting_conflicts.append({
+                        "meeting": meeting,
+                        "conflicts": conflicts,
+                    })
+
+            if meeting_conflicts:
                 weeks_with_conflicts.append({
                     "week": week,
-                    "conflicts": conflicts,
+                    "meetings": meeting_conflicts,
                 })
 
         if weeks_with_conflicts:
