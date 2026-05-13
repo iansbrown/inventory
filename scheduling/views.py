@@ -65,7 +65,7 @@ def experiment_equipment_view(request, experiment_id):
 
     return render(
         request,
-        "experiments/equipment_list.html",
+        "equipment/equipment_list.html",
         {
             "experiment": experiment,
             "equipment_list": equipment_list,
