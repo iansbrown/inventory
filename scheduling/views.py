@@ -188,43 +188,54 @@ def lab_schedule_door_view(request, course_code, term_name):
     )
 
 
+
 def equipment_by_week_view(request, course_code, term_id):
-    lab_offering = get_object_or_404(
-        LabOffering,
+    term = get_object_or_404(AcademicTerm, id=term_id)
+
+    offerings = LabOffering.objects.filter(
         lab_course__course_code=course_code,
-        academic_term__id=term_id,
+        academic_term=term,
     )
 
-    schedule_weeks = (
-        lab_offering.schedule_weeks
-        .prefetch_related("meetings__experiment")
-        .order_by("week_number")
-    )
+    all_offerings_data = []
 
-    equipment_per_week = []
-
-    for week in schedule_weeks:
-        experiments = [
-            m.experiment for m in week.meetings.all() if m.experiment
-        ]
-
-        equipment_type_map = build_equipment_type_map_for_experiments(
-            experiments
+    for lab_offering in offerings:
+        schedule_weeks = (
+            lab_offering.schedule_weeks
+            .prefetch_related("meetings__experiment")
+            .order_by("week_number")
         )
 
-        conflicts = detect_equipment_conflicts(equipment_type_map)
+        equipment_per_week = []
 
-        equipment_per_week.append({
-            "week": week,
-            "equipment": equipment_type_map,
-            "conflicts": conflicts,
+        for week in schedule_weeks:
+            experiments = [
+                m.experiment for m in week.meetings.all() if m.experiment
+            ]
+
+            equipment_type_map = build_equipment_type_map_for_experiments(
+                experiments
+            )
+
+            conflicts = detect_equipment_conflicts(equipment_type_map)
+
+            equipment_per_week.append({
+                "week": week,
+                "equipment": equipment_type_map,
+                "conflicts": conflicts,
+            })
+
+        all_offerings_data.append({
+            "offering": lab_offering,
+            "weeks": equipment_per_week,
         })
 
     return render(
         request,
         "scheduling/equipment_by_week.html",
         {
-            "lab_offering": lab_offering,
-            "equipment_per_week": equipment_per_week,
+            "term": term,
+            "course_code": course_code,
+            "offerings": all_offerings_data,
         },
     )
