@@ -21,10 +21,11 @@
         </p>
 
         <p>
-            {% url 'equipment_by_week'
+            <a href="{% url 'equipment_by_week'
                 entry.offering.lab_course.course_code
-                entry.offering.academic_term.id %}
+                entry.offering.academic_term.id %}">
             View equipment by week →
+	    </a>
         </p>
 
         {% for wk in entry.weeks %}
