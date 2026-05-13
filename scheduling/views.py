@@ -192,7 +192,7 @@ def equipment_by_week_view(request, course_code, term_id):
     lab_offering = get_object_or_404(
         LabOffering,
         lab_course__course_code=course_code,
-        academic_term__name=term_id,
+        academic_term__id=term_id,
     )
 
     schedule_weeks = (

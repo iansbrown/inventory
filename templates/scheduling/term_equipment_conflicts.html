@@ -22,9 +22,10 @@
 
         <!-- FIXED: Proper link -->
         <p>
-            <a href="{% url 'equipment_by_week'
+            {% url 'equipment_by_week'
                 entry.offering.lab_course.course_code
-                entry.offering.academic_term.term_id as eq_url %}">
+                entry.offering.academic_term.term_id as eq_url %}
+	    <a href="{{ eq_url }}">
             	View equipment by week →
 	    </a>
         </p>
@@ -44,12 +45,15 @@
                 {% for conflict in mtg.conflicts %}
                     <li>
 
-                        {% if conflict.equipment_type %}
-    			    {{ conflict.equipment_type.name }}
+			{% if conflict.equipment_type %}
+    			    {% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id as admin_url %}
+    			    <a href="{{ admin_url }}">
+        			    {{ conflict.equipment_type.name }}
+    			    </a>
 			{% else %}
     			    Unknown equipment
 			{% endif %}
-
+                       
                         — Required: {{ conflict.required }},
                         Available: {{ conflict.available }},
 
