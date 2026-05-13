@@ -32,7 +32,7 @@ def term_equipment_conflicts_view(request, term_id):
 
             meeting_conflicts = []
 
-            # ✅ FIX: now checking EACH meeting independently
+            # FIX: now checking EACH meeting independently
             for meeting in week.meetings.all():
                 if not meeting.experiment:
                     continue
@@ -188,7 +188,7 @@ def lab_schedule_door_view(request, course_code, term_name):
     )
 
 
-def equipment_by_week_view(request, course_code, term_name):
+def equipment_by_week_view(request, course_code, term_id):
     lab_offering = get_object_or_404(
         LabOffering,
         lab_course__course_code=course_code,
