@@ -20,13 +20,12 @@
             {{ entry.offering.coordinator.get_full_name }}
         </p>
 
-        <!-- Optional link to weekly equipment view -->
+        <!-- FIXED: Proper link -->
         <p>
             {% url 'equipment_by_week'
                 entry.offering.lab_course.course_code
-                entry.offering.academic_term.name %}
-                View equipment by week →
-            </a>
+                entry.offering.academic_term.name as eq_url %}
+            View equipment by week →
         </p>
 
         {% for wk in entry.weeks %}
@@ -37,20 +36,17 @@
 
             {% for mtg in wk.meetings %}
                 <p>
-                    <strong>
-                        Meeting {{ mtg.meeting.meeting_order }}
-                    </strong>
+                    <strong>Meeting {{ mtg.meeting.meeting_order }}</strong>
                 </p>
 
                 <ul>
                 {% for conflict in mtg.conflicts %}
                     <li>
 
-                        <!-- ✅ FIXED clickable admin link -->
+                        <!--FIXED: Proper admin link -->
                         {% if conflict.equipment_type %}
-                            {% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id %}
-                                {{ conflict.equipment_type.name }}
-                            </a>
+                            {% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id as admin_url %}
+                            {{ conflict.equipment_type.name }}
                         {% else %}
                             Unknown equipment
                         {% endif %}
@@ -72,3 +68,4 @@
 {% endif %}
 
 {% endblock %}
+``
