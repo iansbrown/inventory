@@ -17,6 +17,7 @@ from .models import (
 )
 
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.urls import path
 from django.shortcuts import render, get_object_or_404
 from collections import defaultdict
@@ -200,50 +201,43 @@ class LabOfferingAdmin(admin.ModelAdmin):
     has_equipment_conflicts.boolean = True
     has_equipment_conflicts.short_description = "Equipment Conflicts"
     
+
+    
     def conflict_summary(self, obj):
-        """
-        Returns an HTML summary of weeks with conflicts.
-        MUST NEVER RAISE.
-        """
         try:
             rows = []
     
             for week in obj.schedule_weeks.prefetch_related("meetings__experiment"):
                 experiments = [
-                    m.experiment
-                    for m in week.meetings.all()
-                    if m.experiment
+                    m.experiment for m in week.meetings.all() if m.experiment
                 ]
     
                 if not experiments:
                     continue
     
-                equipment_type_map = build_equipment_type_map_for_experiments(
-                    experiments
-                )
-    
+                equipment_type_map = build_equipment_type_map_for_experiments(experiments)
                 conflicts = detect_equipment_conflicts(equipment_type_map)
     
                 if conflicts:
                     rows.append(
-                        f"<li><strong>Week {week.week_number}</strong>: "
-                        + ", ".join(
-                            f"{c['equipment_type'].name} (short {c['shortfall']})"
-                            for c in conflicts
-                            if c.get("equipment_type")
+                        "<li><strong>Week {}:</strong> {}</li>".format(
+                            week.week_number,
+                            ", ".join(
+                                f"{c['equipment_type'].name} (short {c['shortfall']})"
+                                for c in conflicts
+                                if c.get("equipment_type")
+                            )
                         )
-                        + "</li>"
                     )
     
             if not rows:
                 return "No equipment conflicts detected."
     
-            return format_html("<ul>{}</ul>", format_html("".join(rows)))
+            return format_html("<ul>{}</ul>", mark_safe("".join(rows)))
     
-        except Exception as e:
-            # Admin must never 500 because of readonly fields
+        except Exception:
             return format_html(
-                '<span style="color:red;">Conflict check error</span>'
+                '<span style="color:red;">⚠ Conflict check error</span>'
             )
     
     conflict_summary.short_description = "Equipment Conflict Summary"
