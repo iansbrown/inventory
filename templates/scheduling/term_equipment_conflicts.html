@@ -22,10 +22,11 @@
 
         <!-- FIXED: Proper link -->
         <p>
-            {% url 'equipment_by_week'
+            <a href="{% url 'equipment_by_week'
                 entry.offering.lab_course.course_code
-                entry.offering.academic_term.name as eq_url %}
-            View equipment by week →
+                entry.offering.academic_term.name as eq_url %}">
+            	View equipment by week →
+	    </a>
         </p>
 
         {% for wk in entry.weeks %}
@@ -45,8 +46,9 @@
 
                         <!--FIXED: Proper admin link -->
                         {% if conflict.equipment_type %}
-                            {% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id as admin_url %}
-                            {{ conflict.equipment_type.name }}
+                            <a href="{% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id as admin_url %}">
+                                {{ conflict.equipment_type.name }}
+			    </a>
                         {% else %}
                             Unknown equipment
                         {% endif %}
