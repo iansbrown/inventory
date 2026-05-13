@@ -14,7 +14,7 @@ from scheduling.conflicts import detect_equipment_conflicts
 from equipment.storage import total_storage_for_courses
 from equipment.utils import equipment_list_for_experiment
 from equipment.models import ExperimentEquipmentRequirement
-from scheduling.utils import build_equipment_type_map_for_experiments
+from equipment.utils import build_equipment_type_map_for_experiments
 
 
 def term_equipment_conflicts_view(request, term_id):
