@@ -38,28 +38,39 @@ def build_equipment_type_map_for_experiments(experiments):
 def experiment_equipment_view(request, experiment_id):
     experiment = get_object_or_404(Experiment, id=experiment_id)
 
-    requirements = experiment.equipment_requirements.select_related(
-        "equipment_type"
-    )
+    equipment_list = []
 
-    equipment_list = [
-        {
-            "equipment_type": req.equipment_type,
-            "quantity_required": req.quantity_required,
-        }
-        for req in requirements
-        if req.equipment_type
-    ]
+    for req in experiment.equipment_requirements.select_related("equipment_type"):
+        et = req.equipment_type
+
+        # Skip invalid/missing data safely
+        if not et:
+            continue
+
+        qty = req.quantity_required or 0
+        vol_per = getattr(et, "storage_volume_m3", None)
+
+        # Safe calculation
+        if vol_per is not None:
+            total = vol_per * qty
+        else:
+            total = None
+
+        equipment_list.append({
+            "equipment_type": et,
+            "quantity_required": qty,
+            "volume_per_item_m3": vol_per,
+            "total_volume_m3": total,
+        })
 
     return render(
         request,
-        "equipment/equipment_list.html",
+        "experiments/equipment_list.html",
         {
             "experiment": experiment,
             "equipment_list": equipment_list,
         },
     )
-
 
 def storage_planning_view(request):
     offerings = LabOffering.objects.select_related(
