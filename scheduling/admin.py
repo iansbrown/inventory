@@ -30,7 +30,7 @@ from django.urls import reverse
 
 
 
-admin.register(AcademicTerm)
+@admin.register(AcademicTerm)
 class AcademicTermAdmin(admin.ModelAdmin):
 
     list_display = (
