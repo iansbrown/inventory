@@ -8,31 +8,56 @@ Created on Mon May  4 14:50:40 2026
 
 from collections import defaultdict
 from django.shortcuts import get_object_or_404, render
-from scheduling.models import LabOffering
+from scheduling.models import AcademicTerm, LabOffering
 from equipment.models import Experiment
 from scheduling.conflicts import detect_equipment_conflicts
 from equipment.storage import total_storage_for_courses
 from equipment.utils import equipment_list_for_experiment
 from equipment.models import ExperimentEquipmentRequirement
+from scheduling.utils import build_equipment_type_map_for_experiments
 
 
+def term_equipment_conflicts_view(request, term_id):
+    term = get_object_or_404(AcademicTerm, id=term_id)
 
-def build_equipment_type_map_for_experiments(experiments):
-    """
-    Returns {EquipmentType: total_required_quantity}
-    """
-    equipment_type_map = defaultdict(int)
+    conflict_data = []
 
-    for experiment in experiments:
-        if not experiment:
-            continue
-        for req in experiment.equipment_requirements.select_related(
-            "equipment_type"
-        ):
-            if req.equipment_type:
-                equipment_type_map[req.equipment_type] += req.quantity_required
+    offerings = LabOffering.objects.filter(academic_term=term)
 
-    return equipment_type_map
+    for offering in offerings:
+        weeks_with_conflicts = []
+
+        for week in offering.schedule_weeks.prefetch_related("meetings__experiment"):
+            experiments = [
+                m.experiment for m in week.meetings.all() if m.experiment
+            ]
+
+            if not experiments:
+                continue
+
+            equipment_type_map = build_equipment_type_map_for_experiments(experiments)
+            conflicts = detect_equipment_conflicts(equipment_type_map)
+
+            if conflicts:
+                weeks_with_conflicts.append({
+                    "week": week,
+                    "conflicts": conflicts,
+                })
+
+        if weeks_with_conflicts:
+            conflict_data.append({
+                "offering": offering,
+                "weeks": weeks_with_conflicts,
+            })
+
+    return render(
+        request,
+        "scheduling/term_equipment_conflicts.html",
+        {
+            "term": term,
+            "conflict_data": conflict_data,
+        },
+    )
 
 
 def experiment_equipment_view(request, experiment_id):

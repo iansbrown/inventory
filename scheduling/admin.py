@@ -29,77 +29,54 @@ from django.urls import reverse
 
 
 
-@admin.register(AcademicTerm)
+
+admin.register(AcademicTerm)
 class AcademicTermAdmin(admin.ModelAdmin):
-    list_display = ("name", "term_type", "start_date", "end_date")
-       
-    def get_urls(self):
-            urls = super().get_urls()
-            custom_urls = [
-                path(
-                    "<int:term_id>/equipment-conflicts/",
-                    self.admin_site.admin_view(self.equipment_conflicts_view),
-                    name="term_equipment_conflicts",
-                ),
-            ]
-            return custom_urls + urls
-        
-    def equipment_conflicts_view(self, request, term_id):
-        term = get_object_or_404(AcademicTerm, pk=term_id)
 
-        conflict_data = []
+    list_display = (
+        "name",
+        "start_date",
+        "end_date",
+        "equipment_conflicts_link",
+    )
 
-        for offering in term.lab_offerings.select_related(
-            "lab_course", "coordinator"
-        ).prefetch_related("schedule_weeks__meetings__experiment"):
-            offering_conflicts = []
+    search_fields = (
+        "name",
+    )
 
-            for week in offering.schedule_weeks.all():
-                                
-                experiments = [m.experiment for m in week.meetings.all() if m.experiment]
-                
-                equipment_type_map = build_equipment_type_map_for_experiments(
-                    experiments
-                )
-                
-                conflicts = detect_equipment_conflicts(equipment_type_map)
+    ordering = ("-start_date",)
 
+    # Only readonly display fields go here
+    readonly_fields = (
+        "equipment_conflicts_link",
+    )
 
+    fieldsets = (
+        (None, {
+            "fields": (
+                "name",
+                "start_date",
+                "end_date",
+            )
+        }),
+        ("Planning Tools", {
+            "fields": (
+                "equipment_conflicts_link",
+            )
+        }),
+    )
 
-                if conflicts:
-                    offering_conflicts.append({
-                        "week": week,
-                        "conflicts": conflicts,
-                    })
-
-            if offering_conflicts:
-                conflict_data.append({
-                    "offering": offering,
-                    "weeks": offering_conflicts,
-                })
-
-        context = dict(
-            self.admin_site.each_context(request),
-            term=term,
-            conflict_data=conflict_data,
-        )
-
-        return render(
-            request,
-            "admin/scheduling/term_equipment_conflicts.html",
-            context,
-        )
-    
-    list_filter = ("term_type",)
-    ordering = ("start_date",)
-    readonly_fields = ("equipment_conflicts_link",)
-
-
-
+    # Core admin link method
     def equipment_conflicts_link(self, obj):
+        """
+        Link to term-wide equipment conflict view.
+        MUST NEVER RAISE.
+        """
+
+        # Add page safety
         if not obj or not obj.pk:
             return "—"
-    
+
         try:
             url = reverse(
                 "term_equipment_conflicts",
@@ -107,23 +84,27 @@ class AcademicTermAdmin(admin.ModelAdmin):
             )
         except NoReverseMatch:
             return "Unavailable"
-    
+
         return format_html(
-            '{}View Equipment Conflicts</a>',
+            '<a href="{}" target="_blank">View Equipment Conflicts</a>',
             url,
         )
-    
+
     equipment_conflicts_link.short_description = "Equipment Conflicts"
 
-    
-    fieldsets = (
-        (None, {
-            "fields": ("name", "term_type", "start_date", "end_date"),
-        }),
-        ("Logistics", {
-            "fields": ("equipment_conflicts_link",),
-        }),
-    )
+    # Prevent showing dynamic fields on add view
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            return (
+                (None, {
+                    "fields": (
+                        "name",
+                        "start_date",
+                        "end_date",
+                    )
+                }),
+            )
+        return super().get_fieldsets(request, obj)
 
 @admin.register(LabCourse)
 class LabCourseAdmin(admin.ModelAdmin):
