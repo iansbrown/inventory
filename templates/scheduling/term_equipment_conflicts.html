@@ -23,7 +23,7 @@
         <p>
             {% url 'equipment_by_week'
                 entry.offering.lab_course.course_code
-                entry.offering.academic_term._id as eq_url %}
+                entry.offering.academic_term.id as eq_url %}
 	    <a href="{{ eq_url }}">
             	View equipment by week →
 	    </a>
