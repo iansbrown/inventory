@@ -19,6 +19,13 @@ urlpatterns = [
         views.lab_schedule_door_view,
         name="lab_schedule_door",
     ),
+    
+    path(
+        "academic-term/<int:term_id>/equipment-conflicts/",
+        views.term_equipment_conflicts_view,
+        name="term_equipment_conflicts",
+    ),
+
     path(
         "<str:course_code>/<str:term_name>/equipment/",
         views.equipment_by_week_view,

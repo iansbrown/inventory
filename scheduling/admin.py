@@ -22,11 +22,11 @@ from django.urls import path
 from django.shortcuts import render, get_object_or_404
 from collections import defaultdict
 from equipment.models import ExperimentEquipmentRequirement
-from collections import defaultdict
 from scheduling.conflicts import detect_equipment_conflicts
 from equipment.utils import build_equipment_type_map_for_experiments
 from django.urls.exceptions import NoReverseMatch
 from django.urls import reverse
+
 
 
 @admin.register(AcademicTerm)
@@ -94,13 +94,27 @@ class AcademicTermAdmin(admin.ModelAdmin):
     ordering = ("start_date",)
     readonly_fields = ("equipment_conflicts_link",)
 
-    def equipment_conflicts_link(self, obj):
-        return format_html(
-            '<a class="button" href="{}">View Equipment Conflicts</a>',
-            f"{obj.id}/equipment-conflicts/"
-        )
 
-    equipment_conflicts_link.short_description = ""
+
+    def equipment_conflicts_link(self, obj):
+        if not obj or not obj.pk:
+            return "—"
+    
+        try:
+            url = reverse(
+                "term_equipment_conflicts",
+                args=[obj.pk],
+            )
+        except NoReverseMatch:
+            return "Unavailable"
+    
+        return format_html(
+            '{}View Equipment Conflicts</a>',
+            url,
+        )
+    
+    equipment_conflicts_link.short_description = "Equipment Conflicts"
+
     
     fieldsets = (
         (None, {

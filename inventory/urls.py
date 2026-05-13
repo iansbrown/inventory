@@ -20,8 +20,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
-from scheduling.views import experiment_equipment_view
-
 
 
 def root_redirect(request):
@@ -30,7 +28,7 @@ def root_redirect(request):
 urlpatterns = [
     path("", root_redirect),
     path("admin/", admin.site.urls),
-    path("schedules/", include("scheduling.urls")),
+    path("scheduling/", include("scheduling.urls")),
     path("equipment/", include("equipment.urls")),
 ]
 
