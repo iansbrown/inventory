@@ -9,6 +9,7 @@
 {% else %}
     {% for entry in conflict_data %}
         <hr>
+
         <h2>
             {{ entry.offering.lab_course.course_code }}
             — {{ entry.offering.lab_course.course_title }}
@@ -19,11 +20,11 @@
             {{ entry.offering.coordinator.get_full_name }}
         </p>
 
+        <!-- Optional link to weekly equipment view -->
         <p>
-            <a href="{% url 'equipment_by_week'
+            {% url 'equipment_by_week'
                 entry.offering.lab_course.course_code
-                entry.offering.academic_term.name
-            %}">
+                entry.offering.academic_term.name %}
                 View equipment by week →
             </a>
         </p>
@@ -34,24 +35,38 @@
                 ({{ wk.week.week_start_date }})
             </h3>
 
-            <ul>
-            {% for conflict in wk.conflicts %}
-                <li>
+            {% for mtg in wk.meetings %}
+                <p>
                     <strong>
-                        <a href="{% url 'admin:equipment_equipmenttype_change'
-                            conflict.equipment_type.id
-                        %}">
-                            {{ conflict.equipment_type.name }}
-                        </a>
+                        Meeting {{ mtg.meeting.meeting_order }}
                     </strong>
-                    — Required: {{ conflict.required }},
-                    Available: {{ conflict.available }},
-                    <span style="color: red;">
-                        Shortfall: {{ conflict.shortfall }}
-                    </span>
-                </li>
+                </p>
+
+                <ul>
+                {% for conflict in mtg.conflicts %}
+                    <li>
+
+                        <!-- ✅ FIXED clickable admin link -->
+                        {% if conflict.equipment_type %}
+                            {% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id %}
+                                {{ conflict.equipment_type.name }}
+                            </a>
+                        {% else %}
+                            Unknown equipment
+                        {% endif %}
+
+                        — Required: {{ conflict.required }},
+                        Available: {{ conflict.available }},
+
+                        <span style="color: red;">
+                            Shortfall: {{ conflict.shortfall }}
+                        </span>
+
+                    </li>
+                {% endfor %}
+                </ul>
+
             {% endfor %}
-            </ul>
         {% endfor %}
     {% endfor %}
 {% endif %}
