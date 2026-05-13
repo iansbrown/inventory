@@ -83,23 +83,27 @@
                 <td>
                     {{ entry.equipment_type.name }}
                     <span class="admin-link">
-                        {% url 'admin:equipment_equipmenttype_change'
-                            entry.equipment_type.id %}
+                        <a href="{% url 'admin:equipment_equipmenttype_change' entry.equipment_type.id %}">
                             Edit
                         </a>
                     </span>
                 </td>
+
                 <td>{{ entry.quantity_required }}</td>
+
+                <!-- Volume per unit -->
                 <td>
-                    {% if entry.equipment_type.storage_volume_m3 %}
-                        {{ entry.equipment_type.storage_volume_m3|floatformat:3 }}
+                    {% if entry.volume_per_item_m3 %}
+                        {{ entry.volume_per_item_m3|floatformat:3 }}
                     {% else %}
                         <span class="muted">—</span>
                     {% endif %}
                 </td>
+
+                <!-- Total volume -->
                 <td>
-                    {% if entry.equipment_type.storage_volume_m3 %}
-                        {{ entry.equipment_type.storage_volume_m3|mul:entry.quantity_required|floatformat:3 }}
+                    {% if entry.total_volume_m3 %}
+                        {{ entry.total_volume_m3|floatformat:3 }}
                     {% else %}
                         <span class="muted">—</span>
                     {% endif %}
@@ -115,4 +119,3 @@
 {% endif %}
 
 </body>
-</html>
