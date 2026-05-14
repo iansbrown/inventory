@@ -365,6 +365,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
 
         # Tracking & lifecycle
         "tracking_level",
+        "quantity",
         "status",
         "access_frequency",
 
