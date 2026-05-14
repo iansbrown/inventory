@@ -42,33 +42,32 @@
                 ({{ wk.week.week_start_date }})
             </h3>
 
-            {% for mtg in wk.meetings %}
-                <p>
-                    <strong>Meeting {{ mtg.meeting.meeting_order }}</strong>
-                </p>
+	    
+	    {% for mtg in wk.meetings %}
 
-                <ul>
-                {% for conflict in mtg.conflicts %}
-                    <li>
+    		<p>
+        	    <strong>Meeting {{ mtg.meeting.meeting_order }}</strong>
+    		</p>
 
-			{% if conflict.equipment_type %}
-    			    {% url 'admin:equipment_equipmenttype_change' conflict.equipment_type.id as admin_url %}
-    			    <a href="{{ admin_url }}">
-        			    {{ conflict.equipment_type.name }}
-    			    </a>
-			{% else %}
-    			    Unknown equipment
-			{% endif %}
-                       
-                        — Required: {{ conflict.required }},
-                        Available: {{ conflict.available }},
+    		{% if mtg.conflicts %}
+        	    <ul>
+            		{% for conflict in mtg.conflicts %}
+                	    <li>
+                    		{{ conflict.equipment_type.name }}
+                    		— Required: {{ conflict.required }},
+                    		Available: {{ conflict.available }},
+                    		<span style="color:red;">
+                        	    Shortfall: {{ conflict.shortfall }}
+                    		</span>
+                	    </li>
+            		{% endfor %}
+       		     </ul>
+    		{% else %}
+        	    <p class="muted">No conflicts</p>
+    		{% endif %}
 
-                        <span style="color: red;">
-                            Shortfall: {{ conflict.shortfall }}
-                        </span>
+	    {% endfor %}
 
-                    </li>
-                {% endfor %}
                 </ul>
 
             {% endfor %}

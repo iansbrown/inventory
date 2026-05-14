@@ -32,28 +32,28 @@ def term_equipment_conflicts_view(request, term_id):
 
             meeting_conflicts = []
 
-            # FIX: now checking EACH meeting independently
             for meeting in week.meetings.all():
                 if not meeting.experiment:
                     continue
-
+            
                 equipment_type_map = build_equipment_type_map_for_experiments(
                     [meeting.experiment]
                 )
-
+            
                 conflicts = detect_equipment_conflicts(equipment_type_map)
-
+            
                 if conflicts:
                     meeting_conflicts.append({
                         "meeting": meeting,
                         "conflicts": conflicts,
                     })
-
+            
             if meeting_conflicts:
                 weeks_with_conflicts.append({
                     "week": week,
                     "meetings": meeting_conflicts,
                 })
+
 
         if weeks_with_conflicts:
             conflict_data.append({
