@@ -189,11 +189,11 @@ def lab_schedule_door_view(request, course_code, term_name):
 
 
 
-def equipment_by_week_view(request, course_code, term_id):
+def equipment_by_week_view(request, course_id, term_id):
     term = get_object_or_404(AcademicTerm, id=term_id)
 
     offerings = LabOffering.objects.filter(
-        lab_course__course_code=course_code,
+        lab_course__course_id=course_id,
         academic_term=term,
     )
 
@@ -235,7 +235,7 @@ def equipment_by_week_view(request, course_code, term_id):
         "scheduling/equipment_by_week.html",
         {
             "term": term,
-            "course_code": course_code,
+            "course_id": course_id,
             "offerings": all_offerings_data,
         },
     )

@@ -22,13 +22,12 @@
 
         <p>
             {% if entry.offering and entry.offering.lab_course and entry.offering.academic_term %}
-
+		<p>
     		<a href="{% url 'equipment_by_week'
-        	    entry.offering.lab_course.course_code
-           	    entry.offering.academic_term.id as eq_url %}">
-
-   		<p>
-        	    View equipment by week →
+        	    entry.offering.lab_course.id
+           	    entry.offering.academic_term.id %}">
+	   	    View equipment by week →
+		</a>
     		</p>
 
 	    {% else %}
