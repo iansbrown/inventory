@@ -37,6 +37,13 @@
 
 	    {% endif %}
 	</p>
+	
+	<p>
+    	    DEBUG:
+    	    course={{ entry.offering.lab_course.course_code }},
+    	    term={{ entry.offering.academic_term.id }}
+	</p>
+
 
         {% for wk in entry.weeks %}
             <h3>
