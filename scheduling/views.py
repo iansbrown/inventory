@@ -22,16 +22,16 @@ def term_equipment_conflicts_view(request, term_id):
     term = get_object_or_404(AcademicTerm, id=term_id)
 
     conflict_data = []
-
-    offerings = LabOffering.objects.filter(academic_term=term)
-
-    for offering in offerings:
+    
+    for offering in LabOffering.objects.filter(academic_term=term):
+    
         weeks_with_data = []
-
+        offering_has_conflicts = False   # ✅ NEW
+    
         for week in offering.schedule_weeks.prefetch_related("meetings__experiment"):
-        
+    
             meeting_data = []
-        
+    
             for meeting in week.meetings.all():
                 if not meeting.experiment:
                     meeting_data.append({
@@ -39,22 +39,32 @@ def term_equipment_conflicts_view(request, term_id):
                         "conflicts": [],
                     })
                     continue
-        
+    
                 equipment_type_map = build_equipment_type_map_for_experiments(
                     [meeting.experiment]
                 )
-        
+    
                 conflicts = detect_equipment_conflicts(equipment_type_map)
-        
+    
+                # ✅ Track if ANY conflict exists
+                if conflicts:
+                    offering_has_conflicts = True
+    
                 meeting_data.append({
                     "meeting": meeting,
                     "conflicts": conflicts,
                 })
-        
-            # ALWAYS include the week (no filtering!)
+    
             weeks_with_data.append({
                 "week": week,
                 "meetings": meeting_data,
+            })
+    
+        # ✅ ONLY include offering if it actually has conflicts
+        if offering_has_conflicts:
+            conflict_data.append({
+                "offering": offering,
+                "weeks": weeks_with_data,
             })
 
 
