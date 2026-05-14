@@ -23,9 +23,9 @@
         <p>
             {% if entry.offering and entry.offering.lab_course and entry.offering.academic_term %}
 
-    		{% url 'equipment_by_week'
+    		<a href="{% url 'equipment_by_week'
         	    entry.offering.lab_course.course_code
-           	    entry.offering.academic_term.id as eq_url %}
+           	    entry.offering.academic_term.id as eq_url %}">
 
    		<p>
         	    View equipment by week →
