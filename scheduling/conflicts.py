@@ -5,7 +5,7 @@ Created on Tue May  5 10:16:53 2026
 @author: ianbrown
 """
 
-from equipment.models import EquipmentType
+from equipment.models import EquipmentType,EquipmentItem
 from equipment.utils import available_count
 
 
@@ -29,9 +29,18 @@ def detect_equipment_conflicts(equipment_type_map):
             continue
 
         try:
-            available = equipment_type.items.filter(
-                status="Available"
-            ).count()
+            items = equipment_type.items.filter(
+                status__iexact="available"
+            )
+        
+            available = 0
+        
+            for item in items:
+                if item.tracking_level == EquipmentItem.TRACKING_BULK:
+                    available += item.quantity or 0
+                else:
+                    available += 1
+        
         except Exception:
             available = 0
 
