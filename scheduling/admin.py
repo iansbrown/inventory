@@ -119,6 +119,7 @@ class WeekMeetingInline(admin.TabularInline):
         "meeting_order",
         "label",
         "experiment",
+        "number_of_stations",
         "notes",
     )
     ordering = ("meeting_order",)
