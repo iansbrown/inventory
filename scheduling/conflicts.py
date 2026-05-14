@@ -29,13 +29,17 @@ def detect_equipment_conflicts(equipment_type_map):
             continue
 
         try:
-            items = equipment_type.items.filter(
-                status__iexact="available"
-            )
+            items = equipment_type.items.all()
         
             available = 0
         
             for item in items:
+                # Normalize status safely
+                status = (item.status or "").strip().lower()
+        
+                if status != "available":
+                    continue
+        
                 if item.tracking_level == EquipmentItem.TRACKING_BULK:
                     available += item.quantity or 0
                 else:
