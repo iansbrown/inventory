@@ -193,7 +193,7 @@ def equipment_by_week_view(request, course_id, term_id):
     term = get_object_or_404(AcademicTerm, id=term_id)
 
     offerings = LabOffering.objects.filter(
-        lab_course__course_id=course_id,
+        lab_course__id=course_id,
         academic_term=term,
     )
 
