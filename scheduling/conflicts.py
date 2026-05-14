@@ -34,7 +34,17 @@ def detect_equipment_conflicts(equipment_type_map):
             items = EquipmentItem.objects.filter(
                 equipment_type=equipment_type
             )
-        
+            
+            print(f"{equipment_type.name} TOTAL ITEMS:", items.count())
+            
+            for item in items:
+                print(
+                    f"id={item.id}, "
+                    f"status={item.status}, "
+                    f"tracking={item.tracking_level}, "
+                    f"qty={item.quantity}"
+                )
+
             available = 0
         
             for item in items:
