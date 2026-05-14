@@ -40,10 +40,16 @@ def term_equipment_conflicts_view(request, term_id):
                     })
                     continue
     
+                station_count = meeting.number_of_stations or 1
+
                 equipment_type_map = build_equipment_type_map_for_experiments(
                     [meeting.experiment]
                 )
-    
+                
+                # ✅ scale the map AFTER building it
+                for etype in equipment_type_map:
+                    equipment_type_map[etype] *= station_count
+
                 conflicts = detect_equipment_conflicts(equipment_type_map)
     
                 # ✅ Track if ANY conflict exists
@@ -223,7 +229,27 @@ def equipment_by_week_view(request, course_id, term_id):
             equipment_type_map = build_equipment_type_map_for_experiments(
                 experiments
             )
-
+            
+            # ✅ scale across all meetings in the week
+            # BUT IMPORTANT: you must apply scaling per meeting, not once globally
+            
+            scaled_map = {}
+            
+            for meeting in week.meetings.all():
+                if not meeting.experiment:
+                    continue
+            
+                base_map = build_equipment_type_map_for_experiments(
+                    [meeting.experiment]
+                )
+            
+                station_count = meeting.number_of_stations or 1
+            
+                for etype, qty in base_map.items():
+                    scaled_map[etype] = scaled_map.get(etype, 0) + qty * station_count
+            
+            equipment_type_map = scaled_map
+            
             conflicts = detect_equipment_conflicts(equipment_type_map)
 
             equipment_per_week.append({

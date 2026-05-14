@@ -28,6 +28,12 @@ class WeekMeeting(models.Model):
         blank=True,
         help_text="Optional label (e.g. Mon, Wed, Meeting A)"
     )
+    
+    number_of_stations = models.PositiveIntegerField(
+        default=1,
+        help_text="Number of student stations for this meeting",
+    )
+
 
     experiment = models.ForeignKey(
         "equipment.Experiment",
