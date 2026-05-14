@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+
 <h1>Equipment Conflicts — {{ term.name }}</h1>
 
 {% if not conflict_data %}
@@ -20,21 +21,15 @@
             {{ entry.offering.coordinator.get_full_name }}
         </p>
 
-        <p>
-            {% if entry.offering and entry.offering.lab_course and entry.offering.academic_term %}
-		<p>
-    		<a href="{% url 'equipment_by_week' entry.offering.lab_course.id entry.offering.academic_term.id %}">
-	   	    View equipment by week →
-		</a>
-    		</p>
-
-	    {% else %}
-
-    		<p class="muted">Equipment view unavailable</p>
-
-	    {% endif %}
-	</p>
-	
+        {% if entry.offering and entry.offering.lab_course and entry.offering.academic_term %}
+            <p>
+                <a href="{% url 'equipment_by_week' entry.offering.lab_course.id entry.offering.academic_term.id %}">
+                    View equipment by week →
+                </a>
+            </p>
+        {% else %}
+            <p class="muted">Equipment view unavailable</p>
+        {% endif %}
 
         {% for wk in entry.weeks %}
             <h3>
@@ -42,38 +37,34 @@
                 ({{ wk.week.week_start_date }})
             </h3>
 
-	    
-	    {% for mtg in wk.meetings %}
+            {% for mtg in wk.meetings %}
+                <p>
+                    <strong>Meeting {{ mtg.meeting.meeting_order }}</strong>
+                </p>
 
-    		<p>
-        	    <strong>Meeting {{ mtg.meeting.meeting_order }}</strong>
-    		</p>
-
-    		{% if mtg.conflicts %}
-        	    <ul>
-            		{% for conflict in mtg.conflicts %}
-                	    <li>
-                    		{{ conflict.equipment_type.name }}
-                    		— Required: {{ conflict.required }},
-                    		Available: {{ conflict.available }},
-                    		<span style="color:red;">
-                        	    Shortfall: {{ conflict.shortfall }}
-                    		</span>
-                	    </li>
-            		{% endfor %}
-       		     </ul>
-    		{% else %}
-        	    <p class="muted">No conflicts</p>
-    		{% endif %}
-
-	    {% endfor %}
-
-                </ul>
+                {% if mtg.conflicts %}
+                    <ul>
+                        {% for conflict in mtg.conflicts %}
+                            <li>
+                                {{ conflict.equipment_type.name }}
+                                — Required: {{ conflict.required }},
+                                Available: {{ conflict.available }},
+                                <span style="color:red;">
+                                    Shortfall: {{ conflict.shortfall }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="muted">No conflicts</p>
+                {% endif %}
 
             {% endfor %}
+
         {% endfor %}
+
     {% endfor %}
 {% endif %}
 
 {% endblock %}
-``
+
