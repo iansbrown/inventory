@@ -30,7 +30,7 @@ def detect_equipment_conflicts(equipment_type_map):
 
         try:
             available = equipment_type.items.filter(
-                status="available"
+                status="Available"
             ).count()
         except Exception:
             available = 0
