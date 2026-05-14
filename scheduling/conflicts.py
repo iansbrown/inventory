@@ -28,13 +28,16 @@ def detect_equipment_conflicts(equipment_type_map):
         if not equipment_type or not required or required <= 0:
             continue
 
+
+
         try:
-            items = equipment_type.items.all()
+            items = EquipmentItem.objects.filter(
+                equipment_type=equipment_type
+            )
         
             available = 0
         
             for item in items:
-                # Normalize status safely
                 status = (item.status or "").strip().lower()
         
                 if status != "available":
@@ -47,6 +50,7 @@ def detect_equipment_conflicts(equipment_type_map):
         
         except Exception:
             available = 0
+
 
         if required > available:
             conflicts.append({
