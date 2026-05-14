@@ -6,7 +6,7 @@ Created on Wed Apr 22 15:31:49 2026
 """
 
 from django.db import models
-
+from django.core.exceptions import ValidationError
 
 class RepairLog(models.Model):
     """
@@ -75,6 +75,23 @@ class RepairLog(models.Model):
 
     # ---- Metadata ----
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def is_open(self):
+        return not bool(self.repair_action)
+    
+    def clean(self):
+        super().clean()
+    
+        if self.pk:
+            old = RepairLog.objects.get(pk=self.pk)
+    
+            # Prevent closing unless explicitly allowed
+            if not old.repair_action and self.repair_action:
+                if not getattr(self, "_allow_close", False):
+                    raise ValidationError(
+                        "Only authorized users can complete repairs."
+                    )
 
     class Meta:
         ordering = ["-date_reported", "-created_at"]

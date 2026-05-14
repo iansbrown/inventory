@@ -68,23 +68,14 @@ class RepairLogInline(admin.TabularInline):
     Item-level lifecycle data; does not belong on EquipmentType.
     """
     model = RepairLog
-    extra = 0
-    show_change_link = True
-    ordering = ("-date_reported",)
-
+    extra = 1
     fields = (
         "date_reported",
         "issue_description",
         "repair_action",
-        "performed_by",
-        "repair_cost",
-        "outcome",
-        "move_related",
     )
-
-    readonly_fields = ()
-    can_delete = False 
-
+    readonly_fields = ("created_at",)
+ 
     
 class EquipmentImageInline(admin.TabularInline):
     
@@ -335,6 +326,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         "status",
         "current_location",
         "access_frequency",
+        "has_open_repairs",
     )
 
     list_filter = (
@@ -382,8 +374,12 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-
-    # Inlines
+    def has_open_repairs(self, obj):
+        return obj.repair_logs.filter(repair_action__exact="").exists()
+    
+    has_open_repairs.boolean = True
+    has_open_repairs.short_description = "Open Repairs"
+        # Inlines
     inlines = [RepairLogInline,
                EquipmentImageInline]
 
@@ -656,3 +652,66 @@ class ExperimentAdmin(admin.ModelAdmin):
         )
     
     equipment_requirements_link.short_description = "Equipment"
+    
+from django.contrib import admin
+
+
+class OpenStatusFilter(admin.SimpleListFilter):
+    title = "Open Status"
+    parameter_name = "open_status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("open", "Open"),
+            ("closed", "Closed"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "open":
+            return queryset.filter(repair_action__exact="")
+        if self.value() == "closed":
+            return queryset.exclude(repair_action__exact="")
+    
+@admin.register(RepairLog)
+class RepairLogAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "equipment",
+        "date_reported",
+        "is_open_display",
+    )
+    
+    list_filter = (OpenStatusFilter,)
+    
+    readonly_fields = ("created_at",)
+
+    def is_open_display(self, obj):
+        return obj.is_open
+
+    is_open_display.boolean = True
+    is_open_display.short_description = "Open?"
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(self.readonly_fields)
+
+        # Non-superusers cannot fill in repair completion fields
+        if not request.user.is_superuser:
+            fields += [
+                "repair_action",
+                "performed_by",
+                "repair_cost",
+                "outcome",
+            ]
+
+        return fields
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs
+    
+    def is_open_filter(self, request, queryset):
+        return queryset.filter(repair_action__exact="")
+    
+    def save_model(self, request, obj, form, change):
+        if request.user.is_superuser:
+            obj._allow_close = True
+        super().save_model(request, obj, form, change)
