@@ -15,6 +15,7 @@ import qrcode
 from io import BytesIO
 from django.core.files.base import ContentFile
 from django.urls import reverse
+from django.utils.html import format_html
 
 SQ_METER_TO_SQ_FOOT = Decimal("10.7639104167")
 
@@ -199,9 +200,6 @@ class EquipmentItem(models.Model):
             return None
         return self.storage_footprint_m2 * SQ_METER_TO_SQ_FOOT
 
-
-    
-    
     def generate_qr_code(self):
         """
         Generates a QR code pointing to the admin change page for this item.

@@ -384,6 +384,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
         "qr_preview",
+        
     )
     
     def qr_preview(self, obj):
