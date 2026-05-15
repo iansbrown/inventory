@@ -390,10 +390,10 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     def qr_preview(self, obj):
         if obj.qr_code_image:
             return format_html(
-                '',
+                '<img src="{}" width="150" />',
                 obj.qr_code_image.url
             )
-        return "No QR"
+        return "No QR code"
     
     qr_preview.short_description = "QR Code"
 
