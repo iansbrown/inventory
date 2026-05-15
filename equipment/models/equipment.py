@@ -11,6 +11,10 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 from equipment.units import meters_to_inches, meters_to_feet
 from equipment.models.equipment_type import EquipmentType
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
+from django.urls import reverse
 
 SQ_METER_TO_SQ_FOOT = Decimal("10.7639104167")
 
@@ -95,6 +99,12 @@ class EquipmentItem(models.Model):
         help_text="Number of physical units represented by this item (bulk only)",
     )
 
+    
+    qr_code_image = models.ImageField(
+        upload_to="qr_codes/",
+        blank=True,
+        null=True,
+    )
 
     # ---- Usage and planning ----
     ACCESS_HIGH = "high"
@@ -189,6 +199,43 @@ class EquipmentItem(models.Model):
             return None
         return self.storage_footprint_m2 * SQ_METER_TO_SQ_FOOT
 
+
+    
+    
+    def generate_qr_code(self):
+        """
+        Generates a QR code pointing to the admin change page for this item.
+        """
+        if not self.pk:
+            return None
+    
+        url = reverse(
+            "admin:equipment_equipmentitem_change",
+            args=[self.pk],
+        )
+    
+        # IMPORTANT: add full domain
+        full_url = f"https://inventory-aekg.onrender.com{url}"
+    
+        qr = qrcode.make(full_url)
+    
+        buffer = BytesIO()
+        qr.save(buffer, format="PNG")
+    
+        file_name = f"qr_equipment_{self.pk}.png"
+    
+        return ContentFile(buffer.getvalue(), name=file_name)
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+    
+        # Generate QR if not already present
+        if not self.qr_code_image:
+            qr_file = self.generate_qr_code()
+            if qr_file:
+                self.qr_code_image.save(qr_file.name, qr_file, save=False)
+    
+        super().save(update_fields=["qr_code_image"])
     
     def clean(self):
         if self.tracking_level == "bulk":

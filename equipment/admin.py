@@ -51,6 +51,15 @@ def duplicate_items(modeladmin, request, queryset):
             request,
             f"Created {len(duplicates)} duplicates of {item}"
         )
+@admin.action(description="generate QR codes for all items")       
+def generate_qr_codes(modeladmin, request, queryset):
+    for item in queryset:
+        qr_file = item.generate_qr_code()
+        if qr_file:
+            item.qr_code_image.save(qr_file.name, qr_file)
+
+generate_qr_codes.short_description = "Generate QR codes"
+
 
 class UniversityAdminSite(admin.AdminSite):
     site_header = "UWM Physics and Astronomy Equipment Inventory"
@@ -373,15 +382,30 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created_at",
         "updated_at",
+        "qr_preview",
     )
+    
+    def qr_preview(self, obj):
+        if obj.qr_code_image:
+            return format_html(
+                '',
+                obj.qr_code_image.url
+            )
+        return "No QR"
+    
+    qr_preview.short_description = "QR Code"
+
     def has_open_repairs(self, obj):
         return obj.repair_logs.filter(repair_action__exact="").exists()
     
     has_open_repairs.boolean = True
     has_open_repairs.short_description = "Open Repairs"
-        # Inlines
+        
+    # Inlines
     inlines = [RepairLogInline,
                EquipmentImageInline]
+    #Actions
+    actions = [generate_qr_codes]
 
 @admin.register(PurchaseRecord)
 class PurchaseRecordAdmin(admin.ModelAdmin):
