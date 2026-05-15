@@ -1,0 +1,19 @@
+{% extends "admin/index.html" %}
+{% block content %}
+
+<h1>Admin Dashboard</h1>
+
+<hr>
+
+<h2>Purchasing</h2>
+<ul>
+    <li>
+        {% url 'purchasing_dashboard' %}
+            Go to Purchasing Dashboard
+        </a>
+    </li>
+</ul>
+
+{{ block.super }}
+
+{% endblock %}

@@ -8,6 +8,7 @@ Created on Tue May  5 13:33:09 2026
 from decimal import Decimal
 from django import forms
 from equipment.utils import DimensionInputMixin
+from django.utils import timezone
 from equipment.units import meters_to_inches, meters_to_feet, to_meters
 from .models import (
     EquipmentItem,
@@ -134,6 +135,25 @@ class EquipmentItemInlineForm(forms.ModelForm):
             cleaned["status"] = EquipmentItem.STATUS_AVAILABLE
 
         return cleaned
+
+
+
+class PurchaseRecordForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseRecord
+        fields = [
+            "purchase_date",
+            "vendor",
+            "category",
+            "item_count",
+            "total_cost",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Auto-fill today's date
+        self.fields["purchase_date"].initial = timezone.now().date()
 
 
     

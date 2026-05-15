@@ -1,0 +1,104 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<style>
+form div {
+    margin-bottom: 12px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input, select {
+    padding: 6px;
+    width: 250px;
+}
+
+button {
+    padding: 8px 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+</style>
+
+<h1>Purchasing Dashboard</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: green; font-weight: bold;">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
+
+<hr>
+
+<h2>Spending Summary</h2>
+<p>
+    <strong>Total Spent:</strong>
+    ${{ total_spent }}
+</p>
+
+<hr>
+
+<h2>Recent Purchases</h2>
+
+{% if recent_purchases %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Vendor</th>
+                <th>Total Cost</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in recent_purchases %}
+                <tr>
+                    <td>{{ p.purchase_date }}</td>
+                    <td>{{ p.vendor }}</td>
+                    <td>${{ p.total_cost }}</td>
+                    <td>
+                        <a href="{% url 'admin:equipment_purchaserecord_change' p.id %}">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No purchases found.</p>
+{% endif %}
+
+<hr>
+
+<h2>Add New Purchase</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div>
+        <label>Date:</label><br>
+        {{ form.purchase_date }}
+    </div>
+
+    <div>
+        <label>Vendor:</label><br>
+        {{ form.vendor }}
+    </div>
+
+    <div>
+        <label>Total Cost:</label><br>
+        {{ form.total_cost }}
+    </div>
+
+    <br>
+
+    <button type="submit">Save Purchase</button>
+</form>
+
+{% endblock %}
