@@ -33,12 +33,10 @@ def purchasing_dashboard_view(request):
 
     # Summary data
     total_spent = PurchaseRecord.objects.aggregate(
-        total=Sum("total_cost")
+        total=Sum("extended_cost")
     )["total"] or 0
 
-    recent_purchases = PurchaseRecord.objects.order_by(
-        "-purchase_date"
-    )[:15]
+    recent_purchases = PurchaseRecord.objects.order_by("-date_ordered")[:15]
 
     return render(
         request,

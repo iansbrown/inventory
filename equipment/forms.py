@@ -138,22 +138,24 @@ class EquipmentItemInlineForm(forms.ModelForm):
 
 
 
+
 class PurchaseRecordForm(forms.ModelForm):
+
     class Meta:
         model = PurchaseRecord
         fields = [
-            "purchase_date",
+            "date_ordered",
             "vendor",
-            "category",
-            "item_count",
-            "total_cost",
+            "fiscal_year",
+            "extended_cost",
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Auto-fill today's date
-        self.fields["purchase_date"].initial = timezone.now().date()
+        # ✅ Auto-set today's date
+        self.fields["date_ordered"].initial = timezone.now().date()
+
 
 
     

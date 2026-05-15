@@ -60,7 +60,7 @@ button {
                 <tr>
                     <td>{{ p.purchase_date }}</td>
                     <td>{{ p.vendor }}</td>
-                    <td>${{ p.total_cost }}</td>
+                    <td>${{ p.extended_cost }}</td>
                     <td>
                         <a href="{% url 'admin:equipment_purchaserecord_change' p.id %}">
                             View
@@ -82,8 +82,8 @@ button {
     {% csrf_token %}
 
     <div>
-        <label>Date:</label><br>
-        {{ form.purchase_date }}
+        <label>Date Ordered:</label><br>
+        {{ form.date_ordered }}
     </div>
 
     <div>
@@ -92,8 +92,13 @@ button {
     </div>
 
     <div>
+        <label>Fiscal Year:</label><br>
+        {{ form.fiscal_year }}
+    </div>
+
+    <div>
         <label>Total Cost:</label><br>
-        {{ form.total_cost }}
+        {{ form.extended_cost }}
     </div>
 
     <br>
