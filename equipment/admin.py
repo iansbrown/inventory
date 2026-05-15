@@ -356,6 +356,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
     fields = (
         # Identification
         "inventory_tag",
+        "qr_preview",
         "equipment_type",
         "serial_number",
         "asset_tag",
