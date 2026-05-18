@@ -49,6 +49,19 @@ class EquipmentRequestForm(forms.ModelForm):
             "end_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
 
         }
+        def clean(self):
+            cleaned_data = super().clean()
+        
+            start = cleaned_data.get("start_datetime")
+            end = cleaned_data.get("end_datetime")
+        
+            if not start or not end:
+                raise forms.ValidationError("Start and end time are required.")
+        
+            if end <= start:
+                raise forms.ValidationError("Return time must be after start time.")
+        
+            return cleaned_data
 
 # form for repair requests
 class RepairLogForm(forms.ModelForm):
