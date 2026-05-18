@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>🧪 Experiment Dashboard</h1>
+
+<hr>
+
+<h2>Experiments</h2>
+
+<a href="{% url 'admin:scheduling_experiment_add' %}" class="button">
+    ➕ Create New Experiment
+</a>
+
+<br><br>
+
+{% if experiments %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exp in experiments %}
+                <tr>
+                    <td>{{ exp.name }}</td>
+                    <td>{{ exp.description|truncatewords:10 }}</td>
+                    <td>
+                        Edit
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No experiments found.</p>
+{% endif %}
+
+{% endblock %}

@@ -36,7 +36,11 @@ urlpatterns = [
         views.request_dashboard_view,
         name="request_dashboard",
     ),
-
-
+    
+path(
+    "experiments/",
+    views.experiment_dashboard_view,
+    name="experiment_dashboard",
+),
 
 ]

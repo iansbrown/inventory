@@ -24,6 +24,13 @@
     </div>
 
 	
+    {% if request.user.groups.all|join:", "|contains:"Instructor" %}
+    	<div class="dashboard-card">
+            {% url 'experiment_dashboard' %}
+            </a>
+    	</div>
+    {% endif %}
+
     {% if is_purchasing %}
         <div class="dashboard-card">
             <a href={% url 'purchasing_dashboard' %}>

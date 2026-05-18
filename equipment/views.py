@@ -1,17 +1,31 @@
 from django.shortcuts import render
 from django.db.models import Sum
-from equipment.models import PurchaseRecord, RepairLog, EquipmentRequest
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import user_passes_test
 from equipment.forms import PurchaseRecordForm, RepairLogForm, EquipmentRequestForm
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
 from django.utils import timezone
-
+from .models import (
+    EquipmentItem,
+    PurchaseRecord,
+    StorageLocation,
+    RepairLog,
+    EquipmentImage,
+    Experiment,
+    EquipmentExperiment,
+    EquipmentType,
+    EquipmentRequest,
+    ExperimentEquipmentRequirement,
+)
 def is_purchasing_user(user):
     return user.groups.filter(name="Purchasing").exists()
+
+def is_instructor(user):
+    return user.groups.filter(name="Instructor").exists()
+
 
 
 @user_passes_test(is_purchasing_user)
@@ -61,6 +75,7 @@ def home_dashboard_view(request):
     context = {
         "is_purchasing": user.groups.filter(name="Purchasing").exists(),
         "is_admin": user.is_superuser or user.is_staff,
+        "is_instructor": user.groups.filter(name="Instructor").exists(),
     }
 
     return render(request, "equipment/home_dashboard.html", context)
@@ -143,5 +158,19 @@ def request_dashboard_view(request):
         {
             "form": form,
             "pending_requests": pending_requests,
+        }
+    )
+
+@login_required
+@user_passes_test(is_instructor)
+def experiment_dashboard_view(request):
+
+    experiments = Experiment.objects.all().order_by("name")
+
+    return render(
+        request,
+        "equipment/experiment_dashboard.html",
+        {
+            "experiments": experiments,
         }
     )
