@@ -36,7 +36,7 @@ class EquipmentRequestForm(forms.ModelForm):
             "location",
             "requires_setup",
             "start_datetime",
-            "duration_hours",
+            "end_datetime",
             "notes",
         ]
 
@@ -45,6 +45,9 @@ class EquipmentRequestForm(forms.ModelForm):
             "equipment_type": forms.Select(attrs={"id": "equipment-field"}),
             "experiment": forms.Select(attrs={"id": "experiment-field"}),
             "quantity": forms.NumberInput(attrs={"id": "quantity-field"}),
+            "start_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "end_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+
         }
 
 # form for repair requests

@@ -51,15 +51,15 @@
         <label>Requires Setup:</label><br>
         {{ form.requires_setup }}
     </div>
-
+    
     <div>
-        <label>Start Time:</label><br>
-        {{ form.start_datetime }}
+    	<label>Needed From:</label><br>
+    	{{ form.start_datetime }}
     </div>
 
     <div>
-        <label>Duration (hours):</label><br>
-        {{ form.duration_hours }}
+    	<label>Return After:</label><br>
+    	{{ form.end_datetime }}
     </div>
 
     <div>
@@ -92,8 +92,9 @@
                 <br>
                 Qty: {{ req.quantity }}<br>
                 Location: {{ req.location }}<br>
-                Start: {{ req.start_datetime }}<br>
-                Duration: {{ req.duration_hours }} hours
+                From: {{ req.start_datetime }}<br>
+		Until: {{ req.end_datetime }}
+
             </li>
             <br>
         {% endfor %}

@@ -7,6 +7,7 @@ Created on Mon May 18 14:32:39 2026
 
 from django.conf import settings
 from django.db import models
+from django.core.exceptions import ValidationError
 
 class EquipmentRequest(models.Model):
 
@@ -52,8 +53,14 @@ class EquipmentRequest(models.Model):
     requires_setup = models.BooleanField(default=False)
 
     # ---- Scheduling ----
-    start_datetime = models.DateTimeField()
-    duration_hours = models.PositiveIntegerField()
+
+    start_datetime = models.DateTimeField(
+        help_text="When the equipment is needed"
+    )
+    
+    end_datetime = models.DateTimeField(
+        help_text="When the equipment should be returned"
+    )
 
     # ---- Request Metadata ----
     requested_by = models.ForeignKey(
@@ -84,6 +91,17 @@ class EquipmentRequest(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    from django.core.exceptions import ValidationError
+
+
+    def clean(self):
+        super().clean()
+    
+        if self.start_datetime and self.end_datetime:
+            if self.end_datetime <= self.start_datetime:
+                raise ValidationError({
+                    "end_datetime": "Return time must be after the start time."
+                })
 
     def __str__(self):
         return f"{self.request_type} request by {self.requested_by}"
