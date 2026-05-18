@@ -59,6 +59,8 @@ class EquipmentRequest(models.Model):
     )
     
     end_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
         help_text="When the equipment should be returned"
     )
 
