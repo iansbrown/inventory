@@ -1,14 +1,16 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-<!-- jQuery (required for Select2) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
 {% block content %}
 
@@ -93,20 +95,26 @@
     <p>No recent completed repairs</p>
 {% endif %}
 
+{% endblock %}
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const select = document.querySelector(".equipment-autocomplete");
+    const $ = window.jQuery;
 
-    if (!select) return;
+    if (!$) {
+        console.error("jQuery not loaded!");
+        return;
+    }
 
-    select.addEventListener("focus", function() {
-        this.size = 10;   // show multiple items for quick scan
-    });
+    if (!$.fn.select2) {
+        console.error("Select2 not loaded!");
+        return;
+    }
 
-    select.addEventListener("blur", function() {
-        this.size = 1;
+    $('.equipment-select2').select2({
+        placeholder: "Search for equipment...",
+        allowClear: true,
+        width: '100%',
     });
 });
 </script>
-
-{% endblock %}
