@@ -19,10 +19,26 @@ from .models import (
     EquipmentImage,
     Experiment,
     EquipmentExperiment,
-    EquipmentType
+    EquipmentType,
+    EquipmentRequest
 )
 
 
+class EquipmentRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = EquipmentRequest
+        fields = [
+            "request_type",
+            "equipment_type",
+            "experiment",
+            "quantity",
+            "location",
+            "requires_setup",
+            "start_datetime",
+            "duration_hours",
+            "notes",
+        ]
 
 # form for repair requests
 class RepairLogForm(forms.ModelForm):

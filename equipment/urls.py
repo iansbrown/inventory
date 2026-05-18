@@ -30,6 +30,13 @@ urlpatterns = [
         views.repair_dashboard_view,
         name="repair_dashboard",
     ),
+    
+    path(
+        "requests/",
+        views.request_dashboard_view,
+        name="request_dashboard",
+    ),
+
 
 
 ]

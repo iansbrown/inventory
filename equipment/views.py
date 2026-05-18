@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.db.models import Sum
-from equipment.models import PurchaseRecord, RepairLog
+from equipment.models import PurchaseRecord, RepairLog, EquipmentRequest
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import user_passes_test
-from equipment.forms import PurchaseRecordForm, RepairLogForm
+from equipment.forms import PurchaseRecordForm, RepairLogForm, EquipmentRequestForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django import forms
@@ -112,5 +112,36 @@ def repair_dashboard_view(request):
             "form": form,
             "open_repairs": open_repairs,
             "recent_resolved": recent_resolved,
+        }
+    )
+
+
+@login_required
+def request_dashboard_view(request):
+
+    if request.method == "POST":
+        form = EquipmentRequestForm(request.POST)
+
+        if form.is_valid():
+            req = form.save(commit=False)
+            req.requested_by = request.user
+            req.save()
+
+            messages.success(request, "Request submitted.")
+            return redirect("request_dashboard")
+    else:
+        form = EquipmentRequestForm()
+
+    # pending requests
+    pending_requests = EquipmentRequest.objects.filter(
+        status="pending"
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "equipment/request_dashboard.html",
+        {
+            "form": form,
+            "pending_requests": pending_requests,
         }
     )

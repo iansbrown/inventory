@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>📦 Equipment / Experiment Requests</h1>
+
+<hr>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: green; font-weight: bold;">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
+
+<h2>Submit Request</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Submit Request</button>
+</form>
+
+<hr>
+
+<h2>Pending Requests</h2>
+
+{% if pending_requests %}
+    <ul>
+        {% for req in pending_requests %}
+            <li>
+                <strong>{{ req.request_type }}</strong><br>
+
+                {% if req.equipment_type %}
+                    Equipment: {{ req.equipment_type }}
+                {% endif %}
+
+                {% if req.experiment %}
+                    Experiment: {{ req.experiment }}
+                {% endif %}
+
+                <br>
+                Qty: {{ req.quantity }}<br>
+                Location: {{ req.location }}<br>
+                Start: {{ req.start_datetime }}<br>
+                Duration: {{ req.duration_hours }} hours
+            </li>
+            <br>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No pending requests</p>
+{% endif %}
+
+{% endblock %}
