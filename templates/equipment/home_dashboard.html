@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
 
 {% block content %}
 
@@ -6,26 +7,26 @@
 
 <hr>
 
-<h2>Available Workspaces</h2>
-
-<ul>
+<div class="dashboard-grid">
 
     {% if is_purchasing %}
-        <li>
+        <div class="dashboard-card">
             <a href={% url 'purchasing_dashboard' %}>
-                Purchasing Dashboard
+                <h2>📦 Purchasing Dashboard</h2>
+                <p>Enter and review purchase records</p>
             </a>
-        </li>
+        </div>
     {% endif %}
 
     {% if is_admin %}
-        <li>
-            <a href="https://inventory-aekg.onrender.com/admin/">
-		Admin
+        <div class="dashboard-card">
+            <a href={% url 'admin:index' %}>
             </a>
-        </li>
+            <h2>🔧 Admin Tools</h2>
+            <p>Manage system configuration</p>
+        </div>
     {% endif %}
 
-</ul>
+</div>
 
 {% endblock %}
