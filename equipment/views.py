@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import user_passes_test
 from equipment.forms import PurchaseRecordForm
 from django.contrib import messages
-
+from django.contrib.auth.decorators import login_required
 
 def is_purchasing_user(user):
     return user.groups.filter(name="Purchasing").exists()
@@ -52,12 +52,13 @@ def purchasing_dashboard_view(request):
 User = get_user_model()
 
 
-def post_login_redirect(request):
+@login_required
+def home_dashboard_view(request):
     user = request.user
 
-    # ✅ If user is in Purchasing group → send to dashboard
-    if user.groups.filter(name="Purchasing").exists():
-        return redirect("purchasing_dashboard")
+    context = {
+        "is_purchasing": user.groups.filter(name="Purchasing").exists(),
+        "is_admin": user.is_superuser or user.is_staff,
+    }
 
-    # ✅ Otherwise go to normal admin
-    return redirect("/admin/")
+    return render(request, "equipment/home_dashboard.html", context)

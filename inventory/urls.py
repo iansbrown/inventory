@@ -20,7 +20,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
-from equipment.views import post_login_redirect
+from equipment.views import home_dashboard_view
 
 def root_redirect(request):
     return redirect("/admin/")
@@ -30,7 +30,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("scheduling/", include("scheduling.urls")),
     path("equipment/", include("equipment.urls")),
-    path("post-login/", post_login_redirect),
+    path("home/", home_dashboard_view, name="home_dashboard"),
 ]
 
 if settings.DEBUG:

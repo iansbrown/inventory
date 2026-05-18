@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Welcome</h1>
+
+<hr>
+
+<h2>Available Workspaces</h2>
+
+<ul>
+
+    {% if is_purchasing %}
+        <li>
+            {% url 'purchasing_dashboard' %}
+                Purchasing Dashboard
+            </a>
+        </li>
+    {% endif %}
+
+    {% if is_admin %}
+        <li>
+            Admin Site
+            </a>
+        </li>
+    {% endif %}
+
+</ul>
+
+{% endblock %}
