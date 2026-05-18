@@ -4,7 +4,7 @@ Created on Tue May  5 13:33:09 2026
 
 @author: ianbrown
 """
-from django.contrib.admin.widgets import AutocompleteSelect
+
 from django.contrib import admin
 from decimal import Decimal
 from django import forms
@@ -24,8 +24,13 @@ from .models import (
 
 
 
-# Simple form for repair requests
+# form for repair requests
 class RepairLogForm(forms.ModelForm):
+    
+    equipment = forms.ModelChoiceField(
+        queryset=EquipmentItem.objects.all().order_by("equipment_type__name"),
+        widget=forms.Select(attrs={"class": "equipment-select2"}),
+    )
 
     class Meta:
         model = RepairLog
@@ -34,20 +39,12 @@ class RepairLogForm(forms.ModelForm):
             "issue_description",
             "date_reported",
         ]
-        
-        widgets = {
-            "equipment": forms.Select(attrs={"class": "vTextField"}),
-        }
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Replace equipment field with autocomplete widget
-        self.fields["equipment"].widget = AutocompleteSelect(
-            RepairLog._meta.get_field("equipment"),
-            admin.site,
-        )
+        # auto-set today
+        self.fields["date_reported"].initial = timezone.now().date()
 
     
 class StorageLocationAdminForm(DimensionInputMixin, forms.ModelForm):
@@ -179,7 +176,7 @@ class PurchaseRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # ✅ Auto-set today's date
+        # Auto-set today's date
         self.fields["date_ordered"].initial = timezone.now().date()
 
 

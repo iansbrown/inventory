@@ -248,8 +248,16 @@ class EquipmentItem(models.Model):
 
 
     def __str__(self):
+        parts = []
+    
         if self.equipment_type:
-            return f"{self.equipment_type.name} ({self.inventory_tag})"
-        return self.inventory_tag or "Unlabeled Item"
-
-
+            parts.append(self.equipment_type.name)
+    
+        if self.inventory_tag:
+            parts.append(f"[{self.inventory_tag}]")
+    
+        if self.serial_number:
+            parts.append(f"(SN: {self.serial_number})")
+    
+        return " ".join(parts)
+    
