@@ -24,11 +24,14 @@
     </div>
 
 	
-    {% if request.user.groups.all|join:", "|contains:"Instructor" %}
-    	<div class="dashboard-card">
-            {% url 'experiment_dashboard' %}
-            </a>
-    	</div>
+    {% if is_instructor %}
+    <div class="dashboard-card">
+        <a href="{% url 'experiment_dashboard' %}">
+            <h2>🧪 Experiment Dashboard</h2>
+            <p>Create and manage experiments</p>
+    	</a>
+</div>
+
     {% endif %}
 
     {% if is_purchasing %}
