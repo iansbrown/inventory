@@ -5,8 +5,8 @@
 
 /* Top header bar */
 #header {
-    background-color: #000000; /* UWM Gold */
-    color: #ffbd00;
+    background-color: #000000; /black/
+    color: #ffbd00; /* UWM gold */
 }
 
 /* Admin Header Layout */
@@ -32,13 +32,27 @@
 
 /* Site title (top left) */
 #header h1, #header h1 a {
-    color: #000000;
+    color: #ffbd00;   
     font-weight: bold;
 }
 
 /* Main page title */
 #content h1 {
     color: #000000;
+    border-bottom: 2px solid #ffbd00;
+    padding-bottom: 4px;
+}
+
+
+
+/* Home / site link */
+#site-name a {
+    color: #ffbd00;
+    text-decoration: none;
+}
+
+#site-name a:hover {
+    color: #ffffff;
 }
 
 /* Module headers */
@@ -61,9 +75,29 @@ input[type=submit]:hover {
     color: #ffffff;
 }
 
+/* Breadcrumbs */
+div.breadcrumbs {
+    background-color: #000000;
+    color: #ffbd00;
+    border-bottom: 2px solid #ffbd00;
+}
+
+div.breadcrumbs a {
+    color: #ffbd00;
+    font-weight: bold;
+}
+
+div.breadcrumbs a:hover {
+    color: #ffffff;
+}
+
 /* Links */
 a:link, a:visited {
     color: #000000;
+}
+
+a:hover {
+    color: #ffbd00;
 }
 
 /* Selected row highlight */
@@ -71,8 +105,12 @@ tr.row1:hover, tr.row2:hover {
     background-color: #fff3c4;
 }
 
+thead th {
+    background-color: #000000;
+    color: #ffbd00;
+}
+
 /* Login page */
 .login #container {
     border-top: 5px solid #ffbd00;
 }
-``

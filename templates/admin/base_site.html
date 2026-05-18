@@ -3,7 +3,7 @@
 
 {% block branding %}
 <div id="branding">
-    <a href="{% url 'admin:index' %}">
+    <a href="{% url 'home_dashboard' %">
         <img
             src="{% static 'admin/UWM Primary Logo_Full Color on Dark.png' %}"
             alt="University Logo"
@@ -13,6 +13,13 @@
     <span class="admin-site-title">
         Physics and Astronomy Equipment Inventory
     </span>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'home_dashboard' %}">Home</a>
+    {% if title %} › {{ title }}{% endif %}
 </div>
 {% endblock %}
 
