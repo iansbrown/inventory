@@ -62,3 +62,10 @@ def home_dashboard_view(request):
     }
 
     return render(request, "equipment/home_dashboard.html", context)
+
+
+def root_redirect_view(request):
+    if request.user.is_authenticated:
+        return redirect("home_dashboard")
+
+    return redirect("login")

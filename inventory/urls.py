@@ -20,11 +20,11 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect
 from equipment.views import home_dashboard_view
-
+from equipment.views import root_redirect_view
 
 urlpatterns = [
+    path("", root_redirect_view, name="root_redirect"),
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="registration/login.html"),
