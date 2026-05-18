@@ -349,6 +349,7 @@ class EquipmentItemAdmin(admin.ModelAdmin):
         "inventory_tag",
         "serial_number",
         "asset_tag",
+        "equipment_type__name",
     )
 
     ordering = ("inventory_tag",)
@@ -708,6 +709,8 @@ class RepairLogAdmin(admin.ModelAdmin):
     )
     
     list_filter = (OpenStatusFilter,)
+    
+    autocomplete_fields = ["equipment"]
     
     readonly_fields = ("created_at",)
 

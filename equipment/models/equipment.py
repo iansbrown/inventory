@@ -246,8 +246,10 @@ class EquipmentItem(models.Model):
             self.quantity = None
 
 
+
     def __str__(self):
         if self.equipment_type:
-            return f"{self.inventory_tag} — {self.equipment_type.name}"
-        return self.inventory_tag
+            return f"{self.equipment_type.name} ({self.inventory_tag})"
+        return self.inventory_tag or "Unlabeled Item"
+
 

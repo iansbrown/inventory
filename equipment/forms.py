@@ -4,7 +4,8 @@ Created on Tue May  5 13:33:09 2026
 
 @author: ianbrown
 """
-
+from django.contrib.admin.widgets import AutocompleteSelect
+from django.contrib import admin
 from decimal import Decimal
 from django import forms
 from equipment.utils import DimensionInputMixin
@@ -25,6 +26,7 @@ from .models import (
 
 # Simple form for repair requests
 class RepairLogForm(forms.ModelForm):
+
     class Meta:
         model = RepairLog
         fields = [
@@ -32,10 +34,16 @@ class RepairLogForm(forms.ModelForm):
             "issue_description",
             "date_reported",
         ]
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["date_reported"].initial = timezone.now().date()
+
+        # Replace equipment field with autocomplete widget
+        self.fields["equipment"].widget = AutocompleteSelect(
+            RepairLog._meta.get_field("equipment"),
+            admin.site,
+        )
+
     
 class StorageLocationAdminForm(DimensionInputMixin, forms.ModelForm):
     usable_length_input = forms.DecimalField(required=False, min_value=0)
