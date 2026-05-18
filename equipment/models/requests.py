@@ -19,10 +19,13 @@ class EquipmentRequest(models.Model):
     ]
 
     # ---- Request Type ----
+
     request_type = models.CharField(
         max_length=20,
-        choices=REQUEST_TYPE_CHOICES
+        choices=REQUEST_TYPE_CHOICES,
+        blank=True,
     )
+
 
     equipment_type = models.ForeignKey(
         "equipment.EquipmentType",

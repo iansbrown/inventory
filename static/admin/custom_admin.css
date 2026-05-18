@@ -55,6 +55,12 @@
     color: #ffffff;
 }
 
+#equipment-group,
+#experiment-group,
+#quantity-group {
+    display: none;
+}
+
 /* Module headers */
 .module caption {
     background-color: #000000;

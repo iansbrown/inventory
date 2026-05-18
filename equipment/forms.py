@@ -23,7 +23,7 @@ from .models import (
     EquipmentRequest
 )
 
-
+#form to request equipment/demo
 class EquipmentRequestForm(forms.ModelForm):
 
     class Meta:
@@ -39,6 +39,13 @@ class EquipmentRequestForm(forms.ModelForm):
             "duration_hours",
             "notes",
         ]
+
+        widgets = {
+            "request_type": forms.Select(attrs={"id": "request-type"}),
+            "equipment_type": forms.Select(attrs={"id": "equipment-field"}),
+            "experiment": forms.Select(attrs={"id": "experiment-field"}),
+            "quantity": forms.NumberInput(attrs={"id": "quantity-field"}),
+        }
 
 # form for repair requests
 class RepairLogForm(forms.ModelForm):

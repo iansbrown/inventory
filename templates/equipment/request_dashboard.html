@@ -19,8 +19,55 @@
 <form method="post">
     {% csrf_token %}
 
-    {{ form.as_p }}
+    <div>
+        <label>Request Type:</label><br>
+        {{ form.request_type }}
+    </div>
+    
+    <div id="request-help-text" style="margin-top: 10px; font-style: italic; color: #555;">
+    </div>
 
+    <div id="equipment-group">
+        <label>Equipment Type:</label><br>
+        {{ form.equipment_type }}
+    </div>
+
+    <div id="experiment-group">
+        <label>Experiment:</label><br>
+        {{ form.experiment }}
+    </div>
+
+    <div id="quantity-group">
+        <label>Quantity:</label><br>
+        {{ form.quantity }}
+    </div>
+
+    <div>
+        <label>Location:</label><br>
+        {{ form.location }}
+    </div>
+
+    <div>
+        <label>Requires Setup:</label><br>
+        {{ form.requires_setup }}
+    </div>
+
+    <div>
+        <label>Start Time:</label><br>
+        {{ form.start_datetime }}
+    </div>
+
+    <div>
+        <label>Duration (hours):</label><br>
+        {{ form.duration_hours }}
+    </div>
+
+    <div>
+        <label>Notes:</label><br>
+        {{ form.notes }}
+    </div>
+
+    <br>
     <button type="submit">Submit Request</button>
 </form>
 
@@ -54,5 +101,99 @@
 {% else %}
     <p>No pending requests</p>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const requestType = document.getElementById("request-type");
+
+    const equipmentGroup = document.getElementById("equipment-group");
+    const experimentGroup = document.getElementById("experiment-group");
+    const quantityGroup = document.getElementById("quantity-group");
+
+    const equipmentField = document.getElementById("equipment-field");
+    const experimentField = document.getElementById("experiment-field");
+    const quantityField = document.getElementById("quantity-field");
+
+    const helpText = document.getElementById("request-help-text");
+
+    function updateForm() {
+        const value = requestType.value;
+
+        // EQUIPMENT MODE
+        if (value === "equipment") {
+
+            equipmentGroup.style.display = "block";
+            quantityGroup.style.display = "block";
+
+            experimentGroup.style.display = "none";
+
+            // Enable fields
+            equipmentField.disabled = false;
+            quantityField.disabled = false;
+            experimentField.disabled = true;
+
+            // Clear hidden values
+            experimentField.value = "";
+
+            // Update helper text
+            helpText.innerText =
+                "Request specific quantities of individual equipment items.";
+
+        }
+
+        // EXPERIMENT MODE
+        else if (value === "experiment") {
+
+            equipmentGroup.style.display = "none";
+            quantityGroup.style.display = "none";
+
+            experimentGroup.style.display = "block";
+
+            // Enable fields
+            experimentField.disabled = false;
+            equipmentField.disabled = true;
+            quantityField.disabled = true;
+
+            // Clear hidden values
+            equipmentField.value = "";
+            quantityField.value = "";
+
+            // Update helper text
+            helpText.innerText =
+                "Experiment requests reserve a complete setup including all required equipment.";
+
+        }
+
+        // DEFAULT / NONE
+        else {
+
+            equipmentGroup.style.display = "none";
+            experimentGroup.style.display = "none";
+            quantityGroup.style.display = "none";
+
+            // Disable everything
+            equipmentField.disabled = true;
+            experimentField.disabled = true;
+            quantityField.disabled = true;
+
+            // Clear all
+            equipmentField.value = "";
+            experimentField.value = "";
+            quantityField.value = "";
+
+            helpText.innerText =
+                "Select a request type to begin.";
+        }
+    }
+
+    // Run on page load
+    updateForm();
+
+    // Run when user changes request type
+    requestType.addEventListener("change", updateForm);
+
+});
+</script>
 
 {% endblock %}
