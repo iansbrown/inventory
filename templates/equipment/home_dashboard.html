@@ -12,7 +12,7 @@
 
     {% if is_purchasing %}
         <li>
-            {% url 'purchasing_dashboard' %}
+            <a href={% url 'purchasing_dashboard' %}>
                 Purchasing Dashboard
             </a>
         </li>
@@ -20,7 +20,8 @@
 
     {% if is_admin %}
         <li>
-            Admin Site
+            <a href="https://inventory-aekg.onrender.com/admin/">
+		Admin
             </a>
         </li>
     {% endif %}
