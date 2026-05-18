@@ -9,6 +9,13 @@
 
 <div class="dashboard-grid">
 
+    <div class="dashboard-card">
+    	<a href={% url 'repair_dashboard' %}>
+            <h2>🔧 Repair Dashboard</h2>
+            <p>Report issues and track repairs</p>
+    	</a>
+    </div>
+	
     {% if is_purchasing %}
         <div class="dashboard-card">
             <a href={% url 'purchasing_dashboard' %}>

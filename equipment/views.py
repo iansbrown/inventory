@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.db.models import Sum
-from equipment.models import PurchaseRecord
+from equipment.models import PurchaseRecord, RepairLog
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import user_passes_test
-from equipment.forms import PurchaseRecordForm
+from equipment.forms import PurchaseRecordForm, RepairLogForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django import forms
+from django.utils import timezone
 
 def is_purchasing_user(user):
     return user.groups.filter(name="Purchasing").exists()
@@ -69,3 +71,46 @@ def root_redirect_view(request):
         return redirect("home_dashboard")
 
     return redirect("login")
+
+
+
+@login_required
+def repair_dashboard_view(request):
+
+    # Handle form submission
+    if request.method == "POST":
+        form = RepairLogForm(request.POST)
+
+        if form.is_valid():
+            repair = form.save(commit=False)
+
+            # auto-fill today's date if missing
+            if not repair.date_reported:
+                repair.date_reported = timezone.now().date()
+
+            repair.save()
+
+            messages.success(request, "Repair request submitted.")
+            return redirect("repair_dashboard")
+    else:
+        form = RepairLogForm()
+
+    # Open repairs (no repair_action yet)
+    open_repairs = RepairLog.objects.filter(
+        repair_action__exact=""
+    ).select_related("equipment")
+
+    # Recently resolved (optional)
+    recent_resolved = RepairLog.objects.exclude(
+        repair_action__exact=""
+    ).order_by("-created_at")[:10]
+
+    return render(
+        request,
+        "equipment/repair_dashboard.html",
+        {
+            "form": form,
+            "open_repairs": open_repairs,
+            "recent_resolved": recent_resolved,
+        }
+    )

@@ -24,5 +24,12 @@ urlpatterns = [
         views.purchasing_dashboard_view,
         name="purchasing_dashboard",
     ),
+    
+    path(
+        "repairs/",
+        views.repair_dashboard_view,
+        name="repair_dashboard",
+    ),
+
 
 ]

@@ -1,0 +1,87 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+
+<h1>🔧 Repair Dashboard</h1>
+
+<hr>
+
+<!-- SUCCESS MESSAGES -->
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: green; font-weight: bold;">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
+
+<!-- CREATE NEW REQUEST -->
+<h2>Report New Issue</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div>
+        <label>Equipment:</label><br>
+        {{ form.equipment }}
+    </div>
+
+    <div>
+        <label>Issue Description:</label><br>
+        {{ form.issue_description }}
+    </div>
+
+    <div>
+        <label>Date Reported:</label><br>
+        {{ form.date_reported }}
+    </div>
+
+    <br>
+
+    <button type="submit">Submit Repair Request</button>
+</form>
+
+<hr>
+
+<!-- OPEN REPAIRS -->
+<h2>Open Repairs</h2>
+
+{% if open_repairs %}
+    <ul>
+        {% for repair in open_repairs %}
+            <li>
+                <strong>{{ repair.equipment }}</strong><br>
+                {{ repair.issue_description }}<br>
+
+                <!-- link to admin item -->
+                <ahref={% url 'admin:equipment_equipmentitem_change' repair.equipment.id %}>
+                    View Item
+                </a>
+            </li>
+            <br>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No open repair issues ✅</p>
+{% endif %}
+
+<hr>
+
+<!-- RECENTLY RESOLVED -->
+<h2>Recently Resolved</h2>
+
+{% if recent_resolved %}
+    <ul>
+        {% for repair in recent_resolved %}
+            <li>
+                <strong>{{ repair.equipment }}</strong> —
+                {{ repair.outcome|default:"Resolved" }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No recent completed repairs</p>
+{% endif %}
+
+{% endblock %}

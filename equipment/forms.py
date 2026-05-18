@@ -23,7 +23,20 @@ from .models import (
 
 
 
-
+# Simple form for repair requests
+class RepairLogForm(forms.ModelForm):
+    class Meta:
+        model = RepairLog
+        fields = [
+            "equipment",
+            "issue_description",
+            "date_reported",
+        ]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["date_reported"].initial = timezone.now().date()
+    
 class StorageLocationAdminForm(DimensionInputMixin, forms.ModelForm):
     usable_length_input = forms.DecimalField(required=False, min_value=0)
     usable_width_input = forms.DecimalField(required=False, min_value=0)
