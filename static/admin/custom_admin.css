@@ -120,19 +120,28 @@ thead th {
    ================================ */
 
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-direction: column;       /* vertical stacking */
+    align-items: center;          /* centers horizontally */
+    gap: 20px;                    /* spacing between cards */
     margin-top: 20px;
 }
 
+
 /* Card styling */
 .dashboard-card {
+	
+    width: 100%;
+    max-width: 400px;             /* button width max */
+
     background-color: #ffffff;
     border: 2px solid #000000;
     border-top: 6px solid #ffbd00;
+    border-top-color: #ffbd00;
+
     padding: 20px;
     border-radius: 8px;
+
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
