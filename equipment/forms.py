@@ -34,6 +34,11 @@ class RepairLogForm(forms.ModelForm):
             "issue_description",
             "date_reported",
         ]
+        
+        widgets = {
+            "equipment": forms.Select(attrs={"class": "vTextField"}),
+        }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
