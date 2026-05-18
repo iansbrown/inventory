@@ -165,7 +165,7 @@ def request_dashboard_view(request):
 @user_passes_test(is_instructor)
 def experiment_dashboard_view(request):
 
-    experiments = Experiment.objects.all().order_by("name")
+    experiments = Experiment.objects.all().order_by("experiment_title")
 
     return render(
         request,
