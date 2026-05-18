@@ -16,17 +16,20 @@ Including another URLconf
 """
 
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from equipment.views import home_dashboard_view
 
-def root_redirect(request):
-    return redirect("/admin/")
 
 urlpatterns = [
-    path("", root_redirect),
+    path(
+        "login/",
+        auth_views.LoginView.as_view(template_name="registration/login.html"),
+        name="login",
+    ),
     path("admin/", admin.site.urls),
     path("scheduling/", include("scheduling.urls")),
     path("equipment/", include("equipment.urls")),
