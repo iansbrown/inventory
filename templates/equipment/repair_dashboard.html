@@ -1,6 +1,15 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 {% block content %}
 
 <h1>🔧 Repair Dashboard</h1>
@@ -83,5 +92,21 @@
 {% else %}
     <p>No recent completed repairs</p>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const select = document.querySelector(".equipment-autocomplete");
+
+    if (!select) return;
+
+    select.addEventListener("focus", function() {
+        this.size = 10;   // show multiple items for quick scan
+    });
+
+    select.addEventListener("blur", function() {
+        this.size = 1;
+    });
+});
+</script>
 
 {% endblock %}
