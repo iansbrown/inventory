@@ -35,11 +35,12 @@
 
     {% if is_admin %}
         <div class="dashboard-card">
-            <a href="https://inventory-aekg.onrender.com/admin/">
-            </a>
-            <h2>🔧 Admin Tools</h2>
-            <p>Manage system configuration</p>
-        </div>
+    	    <a href="{% url 'admin:index' %}">
+        	<h2>🔧 Admin Tools</h2>
+        	<p>Manage system configuration</p>
+    	    </a>
+	</div>
+
     {% endif %}
 
 </div>
