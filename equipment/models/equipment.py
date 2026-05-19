@@ -165,18 +165,6 @@ class EquipmentItem(models.Model):
     # Validation and derived-field logic
     # ------------------------------------------------------------------
 
-    '''
-    def has_storage_dimensions(self):
-        return (
-            self.storage_length_m is not None
-            and self.storage_width_m is not None
-            and self.storage_height_m is not None
-        )
-
-    has_storage_dimensions.boolean = True
-    has_storage_dimensions.short_description = "Has Storage Dimensions"
-    '''
-
 
     @property
     def storage_volume_m3(self):

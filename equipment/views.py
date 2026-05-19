@@ -273,22 +273,24 @@ def scheduling_dashboard_view(request):
     
     for eq_type in EquipmentType.objects.all():
     
-        items = EquipmentItem.objects.filter(equipment_type=eq_type)
+        items = EquipmentItem.objects.filter(
+            equipment_type=eq_type,
+            status=EquipmentItem.STATUS_AVAILABLE  # ✅ optional but recommended
+        )
     
-        # Sum bulk quantities (only where quantity IS set)
+        # BULK: sum quantities
         bulk_total = items.filter(
-            quantity__isnull=False
+            tracking_level=EquipmentItem.TRACKING_BULK
         ).aggregate(
             total=Sum("quantity")
         )["total"] or 0
     
-        # Count individually tracked items (no quantity field)
-        individual_total = items.filter(
-            quantity__isnull=True
+        # INDIVIDUAL: count rows
+        individual_total = items.exclude(
+            tracking_level=EquipmentItem.TRACKING_BULK
         ).count()
-
-    # Combine both
-    availability[eq_type] = bulk_total + individual_total
+    
+        availability[eq_type] = bulk_total + individual_total
 
     # STEP 6 — Detect conflicts
     conflicts = {}
