@@ -1,0 +1,69 @@
+{% extends "admin/base_site.html" %}
+{% load custom_tags %}
+{% block content %}
+
+<h1>📅 Scheduling Dashboard</h1>
+
+<hr>
+
+<!-- TERM SELECTOR -->
+<form method="get">
+    <label>Select Term:</label><br>
+    <select name="term" onchange="this.form.submit()">
+        {% for t in terms %}
+            <option value="{{ t.id }}" {% if t == selected_term %}selected{% endif %}>
+                {{ t.name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+<hr>
+
+<!-- COURSE SCHEDULE -->
+{% for course, weeks in course_schedule.items %}
+
+    <div style="margin-bottom: 20px;">
+        <h3>{{ course.name }}</h3>
+
+        {% for week, meetings in weeks.items %}
+
+            <div style="margin-left: 20px; padding: 10px;
+                        {% if week in conflicts %}
+                            background-color: #ffe6e6;
+                            border-left: 6px solid red;
+                        {% endif %}
+                        ">
+
+                <strong>Week {{ week }}</strong>
+
+                <ul>
+                    {% for m in meetings %}
+                        <li>{{ m.experiment.experiment_title }}</li>
+                    {% endfor %}
+                </ul>
+
+                {% if week in conflicts %}
+                    <div style="color: red;">
+                        ⚠ Equipment Conflict:
+                        <ul>
+                            {% for c in conflicts|get_item:week %}
+                                <li>
+                                    {{ c.equipment_type }}
+                                    ({{ c.needed }} needed /
+                                     {{ c.available }} available)
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endfor %}
+
+{% endblock %}

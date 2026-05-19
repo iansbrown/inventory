@@ -37,10 +37,17 @@ urlpatterns = [
         name="request_dashboard",
     ),
     
-path(
-    "experiments/",
-    views.experiment_dashboard_view,
-    name="experiment_dashboard",
-),
+    path(
+        "experiments/",
+        views.experiment_dashboard_view,
+        name="experiment_dashboard",
+    ),
+    
+    path(
+        "scheduling/",
+        views.scheduling_dashboard_view,
+        name="scheduling_dashboard",
+    ),
+
 
 ]

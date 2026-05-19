@@ -7,7 +7,14 @@ from equipment.forms import PurchaseRecordForm, RepairLogForm, EquipmentRequestF
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
+from collections import defaultdict
 from django.utils import timezone
+from datetime import date
+from scheduling.models import (
+    AcademicTerm,
+    Course, 
+    ScheduledMeeting,
+)
 from .models import (
     EquipmentItem,
     PurchaseRecord,
@@ -20,12 +27,31 @@ from .models import (
     EquipmentRequest,
     ExperimentEquipmentRequirement,
 )
+
 def is_purchasing_user(user):
     return user.groups.filter(name="Purchasing").exists()
 
 def is_instructor(user):
     return user.groups.filter(name="Instructor").exists()
 
+def get_default_term():
+    today = date.today()
+
+    # current term
+    current = AcademicTerm.objects.filter(
+        start_date__lte=today,
+        end_date__gte=today
+    ).first()
+
+    if current:
+        return current
+
+    # upcoming term
+    upcoming = AcademicTerm.objects.filter(
+        start_date__gt=today
+    ).order_by("start_date").first()
+
+    return upcoming
 
 
 @user_passes_test(is_purchasing_user)
@@ -174,5 +200,95 @@ def experiment_dashboard_view(request):
         "equipment/experiment_dashboard.html",
         {
             "experiments": experiments,
+        }
+    )
+
+
+@login_required
+def scheduling_dashboard_view(request):
+
+    # STEP 1 — Determine term
+    term_id = request.GET.get("term")
+
+    if term_id:
+        selected_term = AcademicTerm.objects.get(id=term_id)
+    else:
+        today = date.today()
+
+        selected_term = AcademicTerm.objects.filter(
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+
+        if not selected_term:
+            selected_term = AcademicTerm.objects.order_by("start_date").first()
+
+    terms = AcademicTerm.objects.all().order_by("-start_date")
+
+    # STEP 2 — Get courses
+    courses = Course.objects.filter(
+        term=selected_term
+    ).prefetch_related(
+        "scheduled_meetings__experiment__equipment_requirements"
+    )
+
+    # STEP 3 — Build schedule by week
+    course_schedule = {}
+
+    for course in courses:
+        weekly = defaultdict(list)
+
+        for meeting in course.scheduled_meetings.all():
+            week = meeting.date.isocalendar()[1]
+            weekly[week].append(meeting)
+
+        course_schedule[course] = dict(weekly)
+
+    # STEP 4 — Aggregate requirements
+    weekly_requirements = defaultdict(lambda: defaultdict(int))
+
+    for course, weeks in course_schedule.items():
+        for week, meetings in weeks.items():
+            for meeting in meetings:
+                exp = meeting.experiment
+
+                for req in exp.equipment_requirements.all():
+                    weekly_requirements[week][req.equipment_type] += req.quantity_required
+
+    # STEP 5 — Availability (simple count)
+    availability = {}
+
+    for eq_type in EquipmentType.objects.all():
+        availability[eq_type] = EquipmentItem.objects.filter(
+            equipment_type=eq_type
+        ).count()
+
+    # STEP 6 — Detect conflicts
+    conflicts = {}
+
+    for week, reqs in weekly_requirements.items():
+        week_conflicts = []
+
+        for eq_type, needed in reqs.items():
+            available = availability.get(eq_type, 0)
+
+            if needed > available:
+                week_conflicts.append({
+                    "equipment_type": eq_type,
+                    "needed": needed,
+                    "available": available,
+                })
+
+        if week_conflicts:
+            conflicts[week] = week_conflicts
+
+    return render(
+        request,
+        "equipment/scheduling_dashboard.html",
+        {
+            "terms": terms,
+            "selected_term": selected_term,
+            "course_schedule": course_schedule,
+            "conflicts": conflicts,
         }
     )

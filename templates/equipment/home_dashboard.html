@@ -22,7 +22,12 @@
             <p>Request equipment or experiments</p>
     	</a>
     </div>
-
+	
+	<div class="dashboard-card">
+		<a href={% url 'scheduling_dashboard' %}>
+			<h2>📅 Schedule </h2>
+		</a>
+	</div>
 	
     {% if is_instructor %}
     <div class="dashboard-card">
@@ -30,7 +35,7 @@
             <h2>🧪 Experiment Dashboard</h2>
             <p>Create and manage experiments</p>
     	</a>
-</div>
+	</div>
 
     {% endif %}
 
@@ -49,7 +54,7 @@
         	<h2>🔧 Admin Tools</h2>
         	<p>Manage system configuration</p>
     	    </a>
-	</div>
+		</div>
 
     {% endif %}
 
