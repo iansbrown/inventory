@@ -30,7 +30,8 @@
 
             {% for course in courses %}
                 <th style="border: 1px solid #ccc; padding: 8px;">
-                    {{ course.course_title }}
+                    {{ course.course_code }}<br>
+					<small>{{ course.course_title }}</small>
                 </th>
             {% endfor %}
         </tr>
