@@ -270,11 +270,15 @@ def scheduling_dashboard_view(request):
 
     # STEP 5 — Availability (simple count)
     availability = {}
-
+    
     for eq_type in EquipmentType.objects.all():
-        availability[eq_type] = EquipmentItem.objects.filter(
+        total = EquipmentItem.objects.filter(
             equipment_type=eq_type
-        ).count()
+        ).aggregate(
+            total_qty=Sum("quantity")
+        )["total_qty"]
+    
+        availability[eq_type] = total if total is not None else 0
 
     # STEP 6 — Detect conflicts
     conflicts = {}
