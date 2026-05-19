@@ -13,7 +13,7 @@ from datetime import date
 from scheduling.models import (
     AcademicTerm,
     LabCourse, 
-    ScheduledMeeting,
+    WeekMeeting,
 )
 from .models import (
     EquipmentItem,
