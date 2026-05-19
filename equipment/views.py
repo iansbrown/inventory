@@ -232,7 +232,7 @@ def scheduling_dashboard_view(request):
     courses = LabCourse.objects.filter(
         offerings__academic_term=selected_term
     ).distinct().prefetch_related(
-            "offerings__weekmeetings__experiment__equipment_requirements"
+            "offerings__meetings__experiment__equipment_requirements"
     )
                            
 
