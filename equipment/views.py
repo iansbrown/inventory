@@ -243,7 +243,7 @@ def scheduling_dashboard_view(request):
         weekly = defaultdict(list)
     
         for offering in course.offerings.all():
-            for meeting in offering.weekmeetings.all():
+            for meeting in offering.meetings.all():
                 week = meeting.date.isocalendar()[1]
                 weekly[week].append(meeting)
     
@@ -256,6 +256,10 @@ def scheduling_dashboard_view(request):
         for week, meetings in weeks.items():
             for meeting in meetings:
                 exp = meeting.experiment
+                
+                if not exp:   
+                    continue
+
 
                 for req in exp.equipment_requirements.all():
                     weekly_requirements[week][req.equipment_type] += req.quantity_required
