@@ -264,9 +264,11 @@ def scheduling_dashboard_view(request):
                 if not exp:   
                     continue
 
-
                 for req in exp.equipment_requirements.all():
-                    weekly_requirements[week][req.equipment_type] += req.quantity_required
+                    stations = meeting.number_of_stations or 1
+                    total_needed = req.quantity_required * stations
+                    weekly_requirements[week][req.equipment_type] += total_needed
+
 
     # STEP 5 — Availability (simple count)
     availability = {}
