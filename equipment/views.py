@@ -12,7 +12,7 @@ from django.utils import timezone
 from datetime import date
 from scheduling.models import (
     AcademicTerm,
-    Course, 
+    LabCourse, 
     ScheduledMeeting,
 )
 from .models import (
@@ -226,7 +226,7 @@ def scheduling_dashboard_view(request):
     terms = AcademicTerm.objects.all().order_by("-start_date")
 
     # STEP 2 — Get courses
-    courses = Course.objects.filter(
+    courses = LabCourse.objects.filter(
         term=selected_term
     ).prefetch_related(
         "scheduled_meetings__experiment__equipment_requirements"
