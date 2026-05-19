@@ -26,7 +26,7 @@ def term_equipment_conflicts_view(request, term_id):
     for offering in LabOffering.objects.filter(academic_term=term):
     
         weeks_with_data = []
-        offering_has_conflicts = False   # ✅ NEW
+        offering_has_conflicts = False   # NEW
     
         for week in offering.schedule_weeks.prefetch_related("meetings__experiment"):
     
@@ -46,13 +46,13 @@ def term_equipment_conflicts_view(request, term_id):
                     [meeting.experiment]
                 )
                 
-                # ✅ scale the map AFTER building it
+                # scale the map AFTER building it
                 for etype in equipment_type_map:
                     equipment_type_map[etype] *= station_count
 
                 conflicts = detect_equipment_conflicts(equipment_type_map)
     
-                # ✅ Track if ANY conflict exists
+                # Track if ANY conflict exists
                 if conflicts:
                     offering_has_conflicts = True
     
@@ -66,7 +66,7 @@ def term_equipment_conflicts_view(request, term_id):
                 "meetings": meeting_data,
             })
     
-        # ✅ ONLY include offering if it actually has conflicts
+        # ONLY include offering if it actually has conflicts
         if offering_has_conflicts:
             conflict_data.append({
                 "offering": offering,
@@ -230,7 +230,7 @@ def equipment_by_week_view(request, course_id, term_id):
                 experiments
             )
             
-            # ✅ scale across all meetings in the week
+            # scale across all meetings in the week
             # BUT IMPORTANT: you must apply scaling per meeting, not once globally
             
             scaled_map = {}

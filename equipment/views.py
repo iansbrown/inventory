@@ -229,11 +229,13 @@ def scheduling_dashboard_view(request):
 
     # STEP 2 — Get courses
     
+
     courses = LabCourse.objects.filter(
         offerings__academic_term=selected_term
     ).distinct().prefetch_related(
-            "offerings__meetings__experiment__equipment_requirements"
+        "offerings__schedule_weeks__meetings__experiment__equipment_requirements"
     )
+
                            
 
     # STEP 3 — Build schedule by week
@@ -243,11 +245,13 @@ def scheduling_dashboard_view(request):
         weekly = defaultdict(list)
     
         for offering in course.offerings.all():
-            for meeting in offering.meetings.all():
-                week = meeting.date.isocalendar()[1]
-                weekly[week].append(meeting)
+            for week in offering.schedule_weeks.all():
+                for meeting in week.meetings.all():
+                    week_num = week.id   # simple key for now
+                    weekly[week_num].append(meeting)
     
         course_schedule[course] = dict(weekly)
+
 
     # STEP 4 — Aggregate requirements
     weekly_requirements = defaultdict(lambda: defaultdict(int))
