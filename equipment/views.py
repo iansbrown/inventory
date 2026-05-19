@@ -165,7 +165,9 @@ def request_dashboard_view(request):
 @user_passes_test(is_instructor)
 def experiment_dashboard_view(request):
 
-    experiments = Experiment.objects.all().order_by("experiment_title")
+    experiments = Experiment.objects.prefetch_related(
+        "equipment_requirements__equipment_type"
+    ).order_by("experiment_title")
 
     return render(
         request,
