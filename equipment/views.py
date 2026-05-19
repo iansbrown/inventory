@@ -252,7 +252,25 @@ def scheduling_dashboard_view(request):
     
         course_schedule[course] = dict(weekly)
 
+    # STEP 3.1 — Build grid structure (week → course → meetings)
 
+    schedule_grid = defaultdict(dict)
+    all_weeks = set()
+    
+    for course in courses:
+        for offering in course.offerings.all():
+            for week in offering.schedule_weeks.all():
+    
+                all_weeks.add(week)
+    
+                meetings = list(week.meetings.all())
+    
+                schedule_grid[week][course] = meetings
+    
+    
+    # Sort weeks by your actual ordering (important)
+    sorted_weeks = sorted(all_weeks, key=lambda w: w.id)
+    
     # STEP 4 — Aggregate requirements
     weekly_requirements = defaultdict(lambda: defaultdict(int))
 
@@ -312,14 +330,17 @@ def scheduling_dashboard_view(request):
 
         if week_conflicts:
             conflicts[week] = week_conflicts
-
+    
     return render(
         request,
         "equipment/scheduling_dashboard.html",
         {
             "terms": terms,
             "selected_term": selected_term,
-            "course_schedule": course_schedule,
+            "courses": courses,
+            "schedule_grid": schedule_grid,
+            "sorted_weeks": sorted_weeks,
             "conflicts": conflicts,
         }
     )
+

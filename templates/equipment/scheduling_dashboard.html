@@ -21,49 +21,77 @@
 <hr>
 
 <!-- COURSE SCHEDULE -->
-{% for course, weeks in course_schedule.items %}
+<table style="width: 100%; border-collapse: collapse;">
 
-    <div style="margin-bottom: 20px;">
-        <h3>{{ course.name }}</h3>
+    <!-- ✅ HEADER ROW -->
+    <thead>
+        <tr>
+            <th style="border: 1px solid #ccc; padding: 8px;">Week</th>
 
-        {% for week, meetings in weeks.items %}
+            {% for course in courses %}
+                <th style="border: 1px solid #ccc; padding: 8px;">
+                    {{ course.course_title }}
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
 
-            <div style="margin-left: 20px; padding: 10px;
-                        {% if week in conflicts %}
-                            background-color: #ffe6e6;
-                            border-left: 6px solid red;
-                        {% endif %}
-                        ">
+    <!-- ✅ BODY -->
+    <tbody>
 
-                <strong>Week {{ week }}</strong>
-
-                <ul>
-                    {% for m in meetings %}
-                        <li>{{ m.experiment.experiment_title }}</li>
-                    {% endfor %}
-                </ul>
-
-                {% if week in conflicts %}
-                    <div style="color: red;">
-                        ⚠ Equipment Conflict:
-                        <ul>
-                            {% for c in conflicts|get_item:week %}
-                                <li>
-                                    {{ c.equipment_type }}
-                                    ({{ c.needed }} needed /
-                                     {{ c.available }} available)
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+        {% for week in sorted_weeks %}
+            <tr
+                {% if week.id in conflicts %}
+                    style="background-color: #ffe6e6;"
                 {% endif %}
+            >
 
-            </div>
+                <!-- ✅ WEEK NUMBER -->
+                <td style="border: 1px solid #ccc; padding: 8px;">
+                    Week {{ forloop.counter }}
+                </td>
+
+                <!-- ✅ COURSE COLUMNS -->
+                {% for course in courses %}
+                    <td style="border: 1px solid #ccc; padding: 8px;">
+
+                        {% with meetings=schedule_grid|get_item:week|get_item:course %}
+                            {% if meetings %}
+                                <ul style="margin: 0; padding-left: 16px;">
+                                    {% for m in meetings %}
+                                        <li>
+                                            {{ m.experiment.experiment_title }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span style="color: #aaa;">—</span>
+                            {% endif %}
+                        {% endwith %}
+
+                    </td>
+                {% endfor %}
+
+            </tr>
+
+            <!-- ✅ CONFLICT ROW -->
+            {% if week.id in conflicts %}
+                <tr>
+                    <td></td>
+                    <td colspan="{{ courses|length }}" style="color: red; padding: 8px;">
+                        ⚠ Conflict:
+                        {% for c in conflicts|get_item:week.id %}
+                            {{ c.equipment_type }} 
+                            ({{ c.needed }} / {{ c.available }})
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
 
         {% endfor %}
 
-    </div>
+    </tbody>
+</table>
 
-{% endfor %}
 
 {% endblock %}
