@@ -15,4 +15,3 @@ from .repairs import RepairLog
 from .audit import ChangeLog
 from .equipment_type import EquipmentType
 from .requests import EquipmentRequest
-from .experimentreqs import ExperimentEquipmentRequirement
