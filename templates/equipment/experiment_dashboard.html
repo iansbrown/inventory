@@ -26,12 +26,27 @@
         <tbody>
             {% for exp in experiments %}
                 <tr>
-                    <td>{{ exp.experiment_title }}</td>
-                    <td>{{ exp.description|truncatewords:10 }}</td>
-                    <td>
-                        Edit
-                    </td>
-                </tr>
+					<td>
+						{{ exp.experiment_title }}
+						<p><strong>{{ exp.equipment_requirements.count }} types required</strong></p>
+					</td>
+
+					<td>
+						<ul style="margin: 0; padding-left: 16px;">
+							{% for req in exp.equipment_requirements.all %}
+								<li>
+									{{ req.equipment_type }} × {{ req.quantity_required }}
+								</li>
+							{% empty %}
+								<li>No requirements defined</li>
+							{% endfor %}
+						</ul>
+					</td>
+
+					<td>
+						{% url 'admin:equipment_experiment_change' exp.id %}
+					</td>
+				</tr>
             {% endfor %}
         </tbody>
     </table>
