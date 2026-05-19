@@ -23,7 +23,7 @@
 <!-- COURSE SCHEDULE -->
 <table style="width: 100%; border-collapse: collapse;">
 
-    <!-- ✅ HEADER ROW -->
+    <!-- ✅ HEADER -->
     <thead>
         <tr>
             <th style="border: 1px solid #ccc; padding: 8px;">Week</th>
@@ -41,32 +41,39 @@
 
         {% for week in sorted_weeks %}
             <tr
-                {% if week.id in conflicts %}
+                {% if week in conflicts %}
                     style="background-color: #ffe6e6;"
                 {% endif %}
             >
 
                 <!-- ✅ WEEK NUMBER -->
                 <td style="border: 1px solid #ccc; padding: 8px;">
-                    Week {{ week.week_number }}
+                    Week {{ week }}
                 </td>
 
                 <!-- ✅ COURSE COLUMNS -->
                 {% for course in courses %}
-                    <td style="border: 1px solid #ccc; padding: 8px;">
+                    <td style="border: 1px solid #ccc; padding: 8px; vertical-align: top;">
 
-                        {% with meetings=schedule_grid|get_item:week|get_item:course %}
-                            {% if meetings %}
-                                <ul style="margin: 0; padding-left: 16px;">
-                                    {% for m in meetings %}
-                                        <li>
-                                            {{ m.experiment.experiment_title }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <span style="color: #aaa;">—</span>
-                            {% endif %}
+                        {% with course_map=schedule_grid|get_item:week %}
+                            {% with meetings=course_map|get_item:course %}
+                                
+                                {% if meetings %}
+                                    <ul style="margin: 0; padding-left: 16px;">
+                                        {% for m in meetings %}
+                                            <li>
+                                                {{ m.experiment.experiment_title }}
+                                                {% if m.label %}
+                                                    ({{ m.label }})
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span style="color: #aaa;">—</span>
+                                {% endif %}
+
+                            {% endwith %}
                         {% endwith %}
 
                     </td>
@@ -75,15 +82,23 @@
             </tr>
 
             <!-- ✅ CONFLICT ROW -->
-            {% if week.id in conflicts %}
+            {% if week in conflicts %}
                 <tr>
                     <td></td>
                     <td colspan="{{ courses|length }}" style="color: red; padding: 8px;">
-                        ⚠ Conflict:
-                        {% for c in conflicts|get_item:week.id %}
-                            {{ c.equipment_type }} 
-                            ({{ c.needed }} / {{ c.available }})
-                        {% endfor %}
+
+                        ⚠ Equipment Conflict:
+
+                        <ul style="margin: 0; padding-left: 16px;">
+                            {% for c in conflicts|get_item:week %}
+                                <li>
+                                    {{ c.equipment_type }}
+                                    ({{ c.needed }} needed /
+                                     {{ c.available }} available)
+                                </li>
+                            {% endfor %}
+                        </ul>
+
                     </td>
                 </tr>
             {% endif %}

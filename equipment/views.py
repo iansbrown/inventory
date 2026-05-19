@@ -254,22 +254,24 @@ def scheduling_dashboard_view(request):
 
     # STEP 3.1 — Build grid structure (week → course → meetings)
 
-    schedule_grid = defaultdict(dict)
-    all_weeks = set()
+    schedule_grid = defaultdict(lambda: defaultdict(list))
+    all_week_numbers = set()
     
     for course in courses:
         for offering in course.offerings.all():
             for week in offering.schedule_weeks.all():
     
-                all_weeks.add(week)
+                week_num = week.week_number  
+    
+                all_week_numbers.add(week_num)
     
                 meetings = list(week.meetings.all())
     
-                schedule_grid[week][course] = meetings
+                schedule_grid[week_num][course] = meetings
     
     
-    # Sort weeks by your actual ordering (important)
-    sorted_weeks = sorted(all_weeks, key=lambda w: w.id)
+    # Sort properly
+    sorted_weeks = sorted(all_week_numbers)
     
     # STEP 4 — Aggregate requirements
     weekly_requirements = defaultdict(lambda: defaultdict(int))
