@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.db.models import Sum
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import user_passes_test
 from equipment.forms import PurchaseRecordForm, RepairLogForm, EquipmentRequestForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -12,8 +11,11 @@ from django.utils import timezone
 from datetime import date
 from scheduling.models import (
     AcademicTerm,
-    LabCourse, 
+    LabCourse,
+    LabOffering,
+    ScheduleWeek,
     WeekMeeting,
+    LabSection,
 )
 from .models import (
     EquipmentItem,
@@ -226,22 +228,25 @@ def scheduling_dashboard_view(request):
     terms = AcademicTerm.objects.all().order_by("-start_date")
 
     # STEP 2 — Get courses
+    
     courses = LabCourse.objects.filter(
-        term=selected_term
-    ).prefetch_related(
-        "scheduled_meetings__experiment__equipment_requirements"
+        offerings__term=selected_term
+    ).distinct().prefetch_related(
+            "offerings__weekmeetings__experiment__equipment_requirements"
     )
+                           
 
     # STEP 3 — Build schedule by week
     course_schedule = {}
-
+    
     for course in courses:
         weekly = defaultdict(list)
-
-        for meeting in course.scheduled_meetings.all():
-            week = meeting.date.isocalendar()[1]
-            weekly[week].append(meeting)
-
+    
+        for offering in course.offerings.all():
+            for meeting in offering.weekmeetings.all():
+                week = meeting.date.isocalendar()[1]
+                weekly[week].append(meeting)
+    
         course_schedule[course] = dict(weekly)
 
     # STEP 4 — Aggregate requirements
