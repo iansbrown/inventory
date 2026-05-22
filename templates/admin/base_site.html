@@ -1,6 +1,18 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
+{% block extrahead %}
+    {{ block.super }}
+    <!-- Viewport for mobile responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Responsive styles -->
+    <link rel="stylesheet" href="{% static 'admin/responsive.css' %}">
+{% endblock %}
+
 {% block branding %}
 <div id="branding">
     <a href="{% url 'home_dashboard' %">
@@ -26,4 +38,10 @@
 {% block extrastyle %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'admin/custom_admin.css' %}">
+{% endblock %}
+
+{% block extrajs %}
+    {{ block.super }}
+    <!-- Bootstrap 5 Bundle JS (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

@@ -1,8 +1,53 @@
-<h2>Login</h2>
+{% extends "admin/base_site.html" %}
+{% load static %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+{% block content %}
 
-    <button type="submit">Log in</button>
-</form>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 50vh;">
+    <div class="card" style="width: 100%; max-width: 400px; border-left: 4px solid #ffbd00;">
+        <div class="card-body">
+            <h2 class="card-title mb-4">Login</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    {{ form.username }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn btn-black w-100">Log in</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-black {
+        background-color: #000;
+        color: #ffbd00;
+        border: none;
+    }
+    
+    .btn-black:hover {
+        background-color: #333;
+        color: #fff;
+    }
+    
+    input, select {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+    }
+    
+    input:focus, select:focus {
+        outline: none;
+        border-color: #ffbd00;
+        box-shadow: 0 0 0 3px rgba(255, 189, 0, 0.25);
+    }
+</style>
+
+{% endblock %}

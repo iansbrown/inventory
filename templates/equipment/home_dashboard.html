@@ -3,61 +3,61 @@
 
 {% block content %}
 
-<h1>Welcome</h1>
+<div class="container-fluid">
+    <h1>Welcome</h1>
+    <hr>
 
-<hr>
+    <div class="dashboard-grid">
 
-<div class="dashboard-grid">
+        <div class="dashboard-card">
+            <a href={% url 'repair_dashboard' %}>
+                <h2 style="margin-top: 0;">🔧 Repair Ticket</h2>
+                <p>Report issues and track repairs</p>
+            </a>
+        </div>
 
-    <div class="dashboard-card">
-    	<a href={% url 'repair_dashboard' %}>
-            <h2>🔧 Repair Ticket</h2>
-            <p>Report issues and track repairs</p>
-    	</a>
-    </div>
+        <div class="dashboard-card">
+            <a href={% url 'request_dashboard' %}>
+                <h2 style="margin-top: 0;">📦 Equipment Requests</h2>
+                <p>Request equipment or experiments</p>
+            </a>
+        </div>
 
-    <div class="dashboard-card">
-    	<a href={% url 'request_dashboard' %}>
-            <h2>📦 Equipment Requests</h2>
-            <p>Request equipment or experiments</p>
-    	</a>
-    </div>
-	
-	<div class="dashboard-card">
-		<a href={% url 'scheduling_dashboard' %}>
-			<h2>📅 Schedule Overview</h2>
-		</a>
-	</div>
-	
-    {% if is_instructor %}
-    <div class="dashboard-card">
-        <a href="{% url 'experiment_dashboard' %}">
-            <h2>🧪 Experiment Dashboard</h2>
-            <p>Create and manage experiments</p>
-    	</a>
-	</div>
+        <div class="dashboard-card">
+            <a href={% url 'scheduling_dashboard' %}>
+                <h2 style="margin-top: 0;">📅 Schedule Overview</h2>
+                <p>View course and lab schedules</p>
+            </a>
+        </div>
 
-    {% endif %}
+        {% if is_instructor %}
+        <div class="dashboard-card">
+            <a href="{% url 'experiment_dashboard' %}">
+                <h2 style="margin-top: 0;">🧪 Experiment Dashboard</h2>
+                <p>Create and manage experiments</p>
+            </a>
+        </div>
+        {% endif %}
 
-    {% if is_purchasing %}
+        {% if is_purchasing %}
         <div class="dashboard-card">
             <a href={% url 'purchasing_dashboard' %}>
-                <h2>📦 Purchasing Dashboard</h2>
+                <h2 style="margin-top: 0;">📦 Purchasing Dashboard</h2>
                 <p>Enter and review purchase records</p>
             </a>
         </div>
-    {% endif %}
+        {% endif %}
 
-    {% if is_admin %}
+        {% if is_admin %}
         <div class="dashboard-card">
-    	    <a href="{% url 'admin:index' %}">
-        	<h2>🔧 Admin Tools</h2>
-        	<p>Manage system configuration</p>
-    	    </a>
-		</div>
+            <a href="{% url 'admin:index' %}">
+                <h2 style="margin-top: 0;">🔧 Admin Tools</h2>
+                <p>Manage system configuration</p>
+            </a>
+        </div>
+        {% endif %}
 
-    {% endif %}
-
+    </div>
 </div>
 
 {% endblock %}
