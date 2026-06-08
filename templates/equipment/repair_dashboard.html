@@ -3,105 +3,200 @@
 
 {% block extrastyle %}
     {{ block.super }}
-
-    <!-- ✅ Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
-
-    <!-- ✅ jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- ✅ Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 {% endblock %}
 
-
-
 {% block content %}
 
-<h1>🔧 Repair Dashboard</h1>
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
 
-<hr>
+    @media (max-width: 576px) {
+        .container {
+            padding: 0.5rem;
+        }
+    }
 
-<!-- SUCCESS MESSAGES -->
-{% if messages %}
-    {% for message in messages %}
-        <p style="color: green; font-weight: bold;">
-            {{ message }}
-        </p>
-    {% endfor %}
-{% endif %}
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
 
-<!-- CREATE NEW REQUEST -->
-<h2>Report New Issue</h2>
+    @media (max-width: 576px) {
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    }
 
-<form method="post">
-    {% csrf_token %}
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
 
-    <div>
-        <label>Equipment:</label><br>
-        {{ form.equipment }}
-    </div>
+    input, select, textarea {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+    }
 
-    <div>
-        <label>Issue Description:</label><br>
-        {{ form.issue_description }}
-    </div>
+    @media (max-width: 768px) {
+        input, select, textarea {
+            font-size: 16px;
+        }
+    }
 
-    <div>
-        <label>Date Reported:</label><br>
-        {{ form.date_reported }}
-    </div>
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #ffbd00;
+        box-shadow: 0 0 0 3px rgba(255, 189, 0, 0.25);
+    }
 
-    <br>
+    .repair-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-    <button type="submit">Submit Repair Request</button>
-</form>
+    .repair-item {
+        background: #f9f9f9;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #ffbd00;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
 
-<hr>
+    @media (max-width: 576px) {
+        .repair-item {
+            padding: 0.75rem;
+        }
+    }
 
-<!-- OPEN REPAIRS -->
-<h2>Open Repairs</h2>
+    .repair-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #000;
+    }
 
-{% if open_repairs %}
-    <ul>
-        {% for repair in open_repairs %}
-            <li>
-                <strong>{{ repair.equipment }}</strong><br>
-                {{ repair.issue_description }}<br>
+    .repair-desc {
+        color: #333;
+        font-size: 0.95rem;
+    }
 
-                <!-- link to admin item -->
-                <ahref="{% url 'admin:equipment_equipmentitem_change' repair.equipment.id %}">
-                    View Item
-                </a>
-            </li>
-            <br>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No open repair issues ✅</p>
-{% endif %}
+    .repair-link {
+        align-self: flex-start;
+    }
 
-<hr>
+    .message-alert {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
 
-<!-- RECENTLY RESOLVED -->
-<h2>Recently Resolved</h2>
+    .empty-state {
+        color: #666;
+        font-style: italic;
+        padding: 1rem;
+    }
+</style>
 
-{% if recent_resolved %}
-    <ul>
-        {% for repair in recent_resolved %}
-            <li>
-                <strong>{{ repair.equipment }}</strong> —
-                {{ repair.outcome|default:"Resolved" }}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No recent completed repairs</p>
-{% endif %}
+<div class="container">
+    <h1>🔧 Repair Dashboard</h1>
+
+    {% if messages %}
+        <div class="message-alert">
+            {% for message in messages %}
+                <p style="margin: 0.5rem 0;">✅ {{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- CREATE NEW REQUEST -->
+    <h2>📋 Report New Issue</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_equipment">Equipment:</label>
+            {{ form.equipment }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_issue_description">Issue Description:</label>
+            {{ form.issue_description }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_date_reported">Date Reported:</label>
+            {{ form.date_reported }}
+        </div>
+
+        <button type="submit" class="btn btn-black" style="padding: 0.75rem 1.5rem; background: #000; color: #ffbd00; border: none; border-radius: 4px; cursor: pointer;">
+            📤 Submit Repair Request
+        </button>
+    </form>
+
+    <hr>
+
+    <!-- OPEN REPAIRS -->
+    <h2>🔴 Open Repairs</h2>
+
+    {% if open_repairs %}
+        <ul class="repair-list">
+            {% for repair in open_repairs %}
+                <li class="repair-item">
+                    <div class="repair-title">{{ repair.equipment }}</div>
+                    <div class="repair-desc">{{ repair.issue_description }}</div>
+                    <a href="{% url 'admin:equipment_equipmentitem_change' repair.equipment.id %}" class="repair-link btn" style="padding: 0.5rem 1rem; background: #000; color: #ffbd00; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                        View Item →
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">✅ No open repair issues</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- RECENTLY RESOLVED -->
+    <h2>✅ Recently Resolved</h2>
+
+    {% if recent_resolved %}
+        <ul class="repair-list">
+            {% for repair in recent_resolved %}
+                <li class="repair-item">
+                    <div class="repair-title">{{ repair.equipment }}</div>
+                    <div class="repair-desc">{{ repair.outcome|default:"Resolved" }}</div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">No recent completed repairs</p>
+    {% endif %}
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -126,4 +221,3 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 {% endblock %}
-

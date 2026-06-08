@@ -1,113 +1,211 @@
 {% extends "admin/base_site.html" %}
 {% load custom_tags %}
+
 {% block content %}
 
-<h1>📅 Scheduling Dashboard</h1>
+<style>
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
 
-<hr>
+    @media (max-width: 576px) {
+        .container {
+            padding: 0.5rem;
+        }
+    }
 
-<!-- TERM SELECTOR -->
-<form method="get">
-    <label>Select Term:</label><br>
-    <select name="term" onchange="this.form.submit()">
-        {% for t in terms %}
-            <option value="{{ t.id }}" {% if t == selected_term %}selected{% endif %}>
-                {{ t.name }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
+    .control-form {
+        margin-bottom: 1.5rem;
+    }
 
-<hr>
+    .control-form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
 
-<!-- COURSE SCHEDULE -->
-<table style="width: 100%; border-collapse: collapse;">
+    .control-form select {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
 
-    <!-- ✅ HEADER -->
-    <thead>
-        <tr>
-            <th style="border: 1px solid #ccc; padding: 8px;">Week</th>
+    @media (max-width: 768px) {
+        .control-form select {
+            font-size: 16px;
+        }
+    }
 
-            {% for course in courses %}
-                <th style="border: 1px solid #ccc; padding: 8px;">
-                    {{ course.course_code }}<br>
-					<small>{{ course.course_title }}</small>
-                </th>
-            {% endfor %}
-        </tr>
-    </thead>
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 
-    <!-- ✅ BODY -->
-    <tbody>
+    table {
+        min-width: 600px;
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        {% for week in sorted_weeks %}
-            <tr
-                {% if week in conflicts %}
-                    style="background-color: #ffe6e6;"
-                {% endif %}
-            >
+    th, td {
+        border: 1px solid #ccc;
+        padding: 1rem;
+        text-align: left;
+    }
 
-                <!-- ✅ WEEK NUMBER -->
-                <td style="border: 1px solid #ccc; padding: 8px;">
-                    Week {{ week }}
-                </td>
+    th {
+        background: #f9f9f9;
+        font-weight: bold;
+    }
 
-                <!-- ✅ COURSE COLUMNS -->
-                {% for course in courses %}
-                    <td style="border: 1px solid #ccc; padding: 8px; vertical-align: top;">
+    tr.conflict-row {
+        background-color: #ffe6e6;
+    }
 
-                        {% with course_map=schedule_grid|get_item:week %}
-                            {% with meetings=course_map|get_item:course %}
-                                
-                                {% if meetings %}
-                                    <ul style="margin: 0; padding-left: 16px;">
-                                        {% for m in meetings %}
+    .conflict-alert {
+        color: #d32f2f;
+        font-weight: bold;
+    }
+
+    .empty-state {
+        color: #666;
+        font-style: italic;
+        padding: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        table {
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+        }
+
+        th small {
+            display: block;
+            margin-top: 0.25rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1>📅 Scheduling Dashboard</h1>
+
+    <hr>
+
+    <!-- TERM SELECTOR -->
+    <div class="control-form">
+        <form method="get">
+            <label for="term-select">Select Term:</label>
+            <select id="term-select" name="term" onchange="this.form.submit()">
+                {% for t in terms %}
+                    <option value="{{ t.id }}" {% if t == selected_term %}selected{% endif %}>
+                        {{ t.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- COURSE SCHEDULE -->
+    <h2>📋 Course Schedule Matrix</h2>
+
+    {% if courses %}
+        <div class="table-responsive">
+            <table>
+                <!-- ✅ HEADER -->
+                <thead>
+                    <tr>
+                        <th>📅 Week</th>
+
+                        {% for course in courses %}
+                            <th>
+                                {{ course.course_code }}
+                                <small>{{ course.course_title }}</small>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <!-- ✅ BODY -->
+                <tbody>
+
+                    {% for week in sorted_weeks %}
+                        <tr {% if week in conflicts %}class="conflict-row"{% endif %}>
+
+                            <!-- ✅ WEEK NUMBER -->
+                            <td data-label="Week">
+                                <strong>Week {{ week }}</strong>
+                            </td>
+
+                            <!-- ✅ COURSE COLUMNS -->
+                            {% for course in courses %}
+                                <td data-label="{{ course.course_code }}">
+
+                                    {% with course_map=schedule_grid|get_item:week %}
+                                        {% with meetings=course_map|get_item:course %}
+                                            
+                                            {% if meetings %}
+                                                <ul style="margin: 0; padding-left: 16px;">
+                                                    {% for m in meetings %}
+                                                        <li>
+                                                            {{ m.experiment.experiment_title }}
+                                                            {% if m.label %}
+                                                                <small>({{ m.label }})</small>
+                                                            {% endif %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <span style="color: #aaa;">—</span>
+                                            {% endif %}
+
+                                        {% endwith %}
+                                    {% endwith %}
+
+                                </td>
+                            {% endfor %}
+
+                        </tr>
+
+                        <!-- ✅ CONFLICT ROW -->
+                        {% if week in conflicts %}
+                            <tr class="conflict-row">
+                                <td colspan="{{ courses|length|add:1 }}">
+
+                                    <div class="conflict-alert">⚠️ Equipment Conflict This Week:</div>
+
+                                    <ul style="margin: 0.5rem 0 0 0; padding-left: 16px;">
+                                        {% for c in conflicts|get_item:week %}
                                             <li>
-                                                {{ m.experiment.experiment_title }}
-                                                {% if m.label %}
-                                                    ({{ m.label }})
-                                                {% endif %}
+                                                <strong>{{ c.equipment_type }}</strong>
+                                                <span style="color: #d32f2f;">
+                                                    ({{ c.needed }} needed / {{ c.available }} available)
+                                                </span>
                                             </li>
                                         {% endfor %}
                                     </ul>
-                                {% else %}
-                                    <span style="color: #aaa;">—</span>
-                                {% endif %}
 
-                            {% endwith %}
-                        {% endwith %}
+                                </td>
+                            </tr>
+                        {% endif %}
 
-                    </td>
-                {% endfor %}
+                    {% endfor %}
 
-            </tr>
-
-            <!-- ✅ CONFLICT ROW -->
-            {% if week in conflicts %}
-                <tr>
-                    <td></td>
-                    <td colspan="{{ courses|length }}" style="color: red; padding: 8px;">
-
-                        ⚠ Equipment Conflict:
-
-                        <ul style="margin: 0; padding-left: 16px;">
-                            {% for c in conflicts|get_item:week %}
-                                <li>
-                                    {{ c.equipment_type }}
-                                    ({{ c.needed }} needed /
-                                     {{ c.available }} available)
-                                </li>
-                            {% endfor %}
-                        </ul>
-
-                    </td>
-                </tr>
-            {% endif %}
-
-        {% endfor %}
-
-    </tbody>
-</table>
-
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">📭 No courses scheduled for this term.</p>
+    {% endif %}
+</div>
 
 {% endblock %}

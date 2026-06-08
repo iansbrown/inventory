@@ -1,109 +1,185 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
 
 {% block content %}
 
 <style>
-form div {
-    margin-bottom: 12px;
-}
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
 
-label {
-    font-weight: bold;
-}
+    @media (max-width: 576px) {
+        .container {
+            padding: 0.5rem;
+        }
+    }
 
-input, select {
-    padding: 6px;
-    width: 250px;
-}
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
 
-button {
-    padding: 8px 12px;
-    font-weight: bold;
-    cursor: pointer;
-}
+    @media (max-width: 576px) {
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+    }
+
+    @media (max-width: 768px) {
+        input, select, textarea {
+            font-size: 16px;
+        }
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #ffbd00;
+        box-shadow: 0 0 0 3px rgba(255, 189, 0, 0.25);
+    }
+
+    .summary-card {
+        background: #f9f9f9;
+        padding: 1rem;
+        border-left: 4px solid #ffbd00;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 1.5rem;
+    }
+
+    table {
+        min-width: 500px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 576px) {
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn-group button, .btn-group a {
+            width: 100%;
+        }
+    }
 </style>
 
-<h1>Purchasing Dashboard</h1>
+<div class="container">
+    <h1>💰 Purchasing Dashboard</h1>
 
-{% if messages %}
-    {% for message in messages %}
-        <p style="color: green; font-weight: bold;">
-            {{ message }}
-        </p>
-    {% endfor %}
-{% endif %}
-
-<hr>
-
-<h2>Spending Summary</h2>
-<p>
-    <strong>Total Spent:</strong>
-    ${{ total_spent }}
-</p>
-
-<hr>
-
-<h2>Recent Purchases</h2>
-
-{% if recent_purchases %}
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Vendor</th>
-                <th>Total Cost</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in recent_purchases %}
-                <tr>
-                    <td>{{ p.purchase_date }}</td>
-                    <td>{{ p.vendor }}</td>
-                    <td>${{ p.extended_cost }}</td>
-                    <td>
-                        <a href="{% url 'admin:equipment_purchaserecord_change' p.id %}">
-                            View
-                        </a>
-                    </td>
-                </tr>
+    {% if messages %}
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+            {% for message in messages %}
+                <p style="margin: 0.5rem 0;">✅ {{ message }}</p>
             {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No purchases found.</p>
-{% endif %}
+        </div>
+    {% endif %}
 
-<hr>
+    <hr>
 
-<h2>Add New Purchase</h2>
-
-<form method="post">
-    {% csrf_token %}
-
-    <div>
-        <label>Date Ordered:</label><br>
-        {{ form.date_ordered }}
+    <!-- SPENDING SUMMARY -->
+    <div class="summary-card">
+        <h2 style="margin-top: 0;">📊 Spending Summary</h2>
+        <p style="font-size: 1.5rem; margin: 0;">
+            <strong>Total Spent:</strong> ${{ total_spent }}
+        </p>
     </div>
 
-    <div>
-        <label>Vendor:</label><br>
-        {{ form.vendor }}
-    </div>
+    <hr>
 
-    <div>
-        <label>Fiscal Year:</label><br>
-        {{ form.fiscal_year }}
-    </div>
+    <!-- RECENT PURCHASES -->
+    <h2>📦 Recent Purchases</h2>
 
-    <div>
-        <label>Total Cost:</label><br>
-        {{ form.extended_cost }}
-    </div>
+    {% if recent_purchases %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Vendor</th>
+                        <th>Cost</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in recent_purchases %}
+                        <tr>
+                            <td data-label="Date">{{ p.purchase_date }}</td>
+                            <td data-label="Vendor">{{ p.vendor }}</td>
+                            <td data-label="Cost" style="font-weight: bold;">${{ p.extended_cost }}</td>
+                            <td data-label="Details">
+                                <a href="{% url 'admin:equipment_purchaserecord_change' p.id %}" class="btn btn-sm">
+                                    View →
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #666; font-style: italic;">📭 No purchases found.</p>
+    {% endif %}
 
-    <br>
+    <hr>
 
-    <button type="submit">Save Purchase</button>
-</form>
+    <!-- ADD NEW PURCHASE FORM -->
+    <h2>➕ Add New Purchase</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_date_ordered">Date Ordered:</label>
+            {{ form.date_ordered }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_vendor">Vendor:</label>
+            {{ form.vendor }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_fiscal_year">Fiscal Year:</label>
+            {{ form.fiscal_year }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_extended_cost">Total Cost:</label>
+            {{ form.extended_cost }}
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-black" style="padding: 0.75rem 1.5rem; background: #000; color: #ffbd00; border: none; border-radius: 4px; cursor: pointer;">
+                💾 Save Purchase
+            </button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

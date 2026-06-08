@@ -1,187 +1,292 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
 
 {% block content %}
 
-<h1>📦 Equipment / Experiment Requests</h1>
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
 
-<hr>
+    @media (max-width: 576px) {
+        .container {
+            padding: 0.5rem;
+        }
+    }
 
-{% if messages %}
-    {% for message in messages %}
-        <p style="color: green; font-weight: bold;">
-            {{ message }}
-        </p>
-    {% endfor %}
-{% endif %}
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
 
-<h2>Submit Request</h2>
+    @media (max-width: 576px) {
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    }
 
-<form method="post">
-    {% csrf_token %}
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
 
-    <div>
-        <label>Request Type:</label><br>
-        {{ form.request_type }}
+    input, select, textarea {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+    }
+
+    @media (max-width: 768px) {
+        input, select, textarea {
+            font-size: 16px;
+        }
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #ffbd00;
+        box-shadow: 0 0 0 3px rgba(255, 189, 0, 0.25);
+    }
+
+    .help-text {
+        margin-top: 0.5rem;
+        font-style: italic;
+        color: #555;
+        font-size: 0.9rem;
+    }
+
+    .hidden-group {
+        display: none;
+    }
+
+    .request-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .request-item {
+        background: #f9f9f9;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #ffbd00;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 576px) {
+        .request-item {
+            padding: 0.75rem;
+        }
+    }
+
+    .request-type {
+        font-weight: bold;
+        color: #000;
+        margin-bottom: 0.5rem;
+    }
+
+    .request-detail {
+        color: #333;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .message-alert {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        color: #666;
+        font-style: italic;
+        padding: 1rem;
+    }
+
+    .form-section {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-left: 4px solid #ffbd00;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 576px) {
+        .form-section {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1>📦 Equipment / Experiment Requests</h1>
+
+    {% if messages %}
+        <div class="message-alert">
+            {% for message in messages %}
+                <p style="margin: 0.5rem 0;">✅ {{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- SUBMIT REQUEST FORM -->
+    <div class="form-section">
+        <h2 style="margin-top: 0;">📝 Submit Request</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_request_type">Request Type:</label>
+                {{ form.request_type }}
+            </div>
+
+            <div class="help-text" id="request-help-text">
+                Select a request type to begin.
+            </div>
+
+            <div class="form-group hidden-group" id="equipment-group">
+                <label for="id_equipment_type">Equipment Type:</label>
+                {{ form.equipment_type }}
+            </div>
+
+            <div class="form-group hidden-group" id="experiment-group">
+                <label for="id_experiment">Experiment:</label>
+                {{ form.experiment }}
+            </div>
+
+            <div class="form-group hidden-group" id="quantity-group">
+                <label for="id_quantity">Quantity:</label>
+                {{ form.quantity }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_location">Location:</label>
+                {{ form.location }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_requires_setup">
+                    {{ form.requires_setup }}
+                    Requires Setup
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="id_start_datetime">Needed From:</label>
+                {{ form.start_datetime }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_end_datetime">Return After:</label>
+                {{ form.end_datetime }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_notes">Notes:</label>
+                {{ form.notes }}
+            </div>
+
+            <button type="submit" class="btn btn-black" style="padding: 0.75rem 1.5rem; background: #000; color: #ffbd00; border: none; border-radius: 4px; cursor: pointer;">
+                ✅ Submit Request
+            </button>
+        </form>
     </div>
-    
-    <div id="request-help-text" style="margin-top: 10px; font-style: italic; color: #555;">
-    </div>
 
-    <div id="equipment-group">
-        <label>Equipment Type:</label><br>
-        {{ form.equipment_type }}
-    </div>
+    <hr>
 
-    <div id="experiment-group">
-        <label>Experiment:</label><br>
-        {{ form.experiment }}
-    </div>
+    <!-- PENDING REQUESTS -->
+    <h2>⏳ Pending Requests</h2>
 
-    <div id="quantity-group">
-        <label>Quantity:</label><br>
-        {{ form.quantity }}
-    </div>
+    {% if pending_requests %}
+        <ul class="request-list">
+            {% for req in pending_requests %}
+                <li class="request-item">
+                    <div class="request-type">{{ req.request_type }}</div>
 
-    <div>
-        <label>Location:</label><br>
-        {{ form.location }}
-    </div>
+                    {% if req.equipment_type %}
+                        <div class="request-detail">
+                            <strong>Equipment:</strong> {{ req.equipment_type }}
+                        </div>
+                    {% endif %}
 
-    <div>
-        <label>Requires Setup:</label><br>
-        {{ form.requires_setup }}
-    </div>
-    
-    <div>
-    	<label>Needed From:</label><br>
-    	{{ form.start_datetime }}
-    </div>
+                    {% if req.experiment %}
+                        <div class="request-detail">
+                            <strong>Experiment:</strong> {{ req.experiment }}
+                        </div>
+                    {% endif %}
 
-    <div>
-    	<label>Return After:</label><br>
-    	{{ form.end_datetime }}
-    </div>
+                    <div class="request-detail">
+                        <strong>Quantity:</strong> {{ req.quantity }}
+                    </div>
 
-    <div>
-        <label>Notes:</label><br>
-        {{ form.notes }}
-    </div>
+                    <div class="request-detail">
+                        <strong>Location:</strong> {{ req.location }}
+                    </div>
 
-    <br>
-    <button type="submit">Submit Request</button>
-</form>
+                    <div class="request-detail">
+                        <strong>From:</strong> {{ req.start_datetime|date:"M d, Y H:i" }}
+                    </div>
 
-<hr>
-
-<h2>Pending Requests</h2>
-
-{% if pending_requests %}
-    <ul>
-        {% for req in pending_requests %}
-            <li>
-                <strong>{{ req.request_type }}</strong><br>
-
-                {% if req.equipment_type %}
-                    Equipment: {{ req.equipment_type }}
-                {% endif %}
-
-                {% if req.experiment %}
-                    Experiment: {{ req.experiment }}
-                {% endif %}
-
-                <br>
-                Qty: {{ req.quantity }}<br>
-                Location: {{ req.location }}<br>
-                From: {{ req.start_datetime }}<br>
-		Until: {{ req.end_datetime }}
-
-            </li>
-            <br>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No pending requests</p>
-{% endif %}
+                    <div class="request-detail">
+                        <strong>Until:</strong> {{ req.end_datetime|date:"M d, Y H:i" }}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">✅ No pending requests</p>
+    {% endif %}
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const requestType = document.getElementById("request-type");
-
+    const requestTypeSelect = document.querySelector('select[name="request_type"]');
     const equipmentGroup = document.getElementById("equipment-group");
     const experimentGroup = document.getElementById("experiment-group");
     const quantityGroup = document.getElementById("quantity-group");
-
-    const equipmentField = document.getElementById("equipment-field");
-    const experimentField = document.getElementById("experiment-field");
-    const quantityField = document.getElementById("quantity-field");
-
     const helpText = document.getElementById("request-help-text");
 
-    function updateForm() {
-        const value = requestType.value;
+    function updateFormVisibility() {
+        const value = requestTypeSelect.value;
 
         // EQUIPMENT MODE
         if (value === "equipment") {
+            equipmentGroup.classList.remove("hidden-group");
+            quantityGroup.classList.remove("hidden-group");
+            experimentGroup.classList.add("hidden-group");
 
-            equipmentGroup.style.display = "block";
-            quantityGroup.style.display = "block";
-
-            experimentGroup.style.display = "none";
-
-            // Enable fields
-            equipmentField.disabled = false;
-            quantityField.disabled = false;
-            experimentField.disabled = true;
-
-            // Clear hidden values
-            experimentField.value = "";
-
-            // Update helper text
             helpText.innerText =
                 "Request specific quantities of individual equipment items.";
-
         }
 
         // EXPERIMENT MODE
         else if (value === "experiment") {
+            equipmentGroup.classList.add("hidden-group");
+            quantityGroup.classList.add("hidden-group");
+            experimentGroup.classList.remove("hidden-group");
 
-            equipmentGroup.style.display = "none";
-            quantityGroup.style.display = "none";
-
-            experimentGroup.style.display = "block";
-
-            // Enable fields
-            experimentField.disabled = false;
-            equipmentField.disabled = true;
-            quantityField.disabled = true;
-
-            // Clear hidden values
-            equipmentField.value = "";
-            quantityField.value = "";
-
-            // Update helper text
             helpText.innerText =
                 "Experiment requests reserve a complete setup including all required equipment.";
-
         }
 
         // DEFAULT / NONE
         else {
-
-            equipmentGroup.style.display = "none";
-            experimentGroup.style.display = "none";
-            quantityGroup.style.display = "none";
-
-            // Disable everything
-            equipmentField.disabled = true;
-            experimentField.disabled = true;
-            quantityField.disabled = true;
-
-            // Clear all
-            equipmentField.value = "";
-            experimentField.value = "";
-            quantityField.value = "";
+            equipmentGroup.classList.add("hidden-group");
+            experimentGroup.classList.add("hidden-group");
+            quantityGroup.classList.add("hidden-group");
 
             helpText.innerText =
                 "Select a request type to begin.";
@@ -189,10 +294,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Run on page load
-    updateForm();
+    updateFormVisibility();
 
     // Run when user changes request type
-    requestType.addEventListener("change", updateForm);
+    requestTypeSelect.addEventListener("change", updateFormVisibility);
 
 });
 </script>

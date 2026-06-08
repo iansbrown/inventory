@@ -1,57 +1,162 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
 
 {% block content %}
 
-<h1>🧪 Experiment Dashboard</h1>
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
 
-<hr>
+    @media (max-width: 576px) {
+        .container {
+            padding: 0.5rem;
+        }
+    }
 
-<h2>Experiments</h2>
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
 
-<a href="{% url 'admin:equipment_experiment_add' %}" class="button">
-    ➕ Create New Experiment
-</a>
+    @media (max-width: 576px) {
+        .btn-group {
+            flex-direction: column;
+        }
 
-<br><br>
+        .btn-group a {
+            width: 100%;
+        }
+    }
 
-{% if experiments %}
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Edit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for exp in experiments %}
-                <tr>
-					<td>
-						{{ exp.experiment_title }}
-						<p><strong>{{ exp.equipment_requirements.count }} types required</strong></p>
-					</td>
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 
-					<td>
-						<ul style="margin: 0; padding-left: 16px;">
-							{% for req in exp.equipment_requirements.all %}
-								<li>
-									{{ req.equipment_type }} × {{ req.quantity_required }}
-								</li>
-							{% empty %}
-								<li>No requirements defined</li>
-							{% endfor %}
-						</ul>
-					</td>
+    table {
+        min-width: 500px;
+    }
 
-					<td>
-						{% url 'admin:equipment_experiment_change' exp.id %}
-					</td>
-				</tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No experiments found.</p>
-{% endif %}
+    .experiment-name {
+        font-weight: bold;
+        font-size: 1.05rem;
+    }
+
+    .requirement-count {
+        background: #ffbd00;
+        color: #000;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 0.25rem;
+    }
+
+    .empty-state {
+        color: #666;
+        font-style: italic;
+        padding: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        table thead {
+            display: none;
+        }
+
+        table tbody tr {
+            display: block;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        table td {
+            display: block;
+            padding: 0.75rem;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 50%;
+        }
+
+        table td:last-child {
+            border-bottom: none;
+        }
+
+        table td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0.75rem;
+            font-weight: bold;
+            text-align: left;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1>🧪 Experiment Dashboard</h1>
+
+    <hr>
+
+    <h2>📋 Experiments</h2>
+
+    <div class="btn-group">
+        <a href="{% url 'admin:equipment_experiment_add' %}" class="btn btn-black" style="padding: 0.75rem 1.5rem; background: #000; color: #ffbd00; text-decoration: none; border-radius: 4px;">
+            ➕ Create New Experiment
+        </a>
+    </div>
+
+    {% if experiments %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Experiment Name</th>
+                        <th>Equipment Requirements</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in experiments %}
+                        <tr>
+                            <td data-label="Experiment Name">
+                                <div class="experiment-name">{{ exp.experiment_title }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">{{ exp.course_code }}</div>
+                            </td>
+
+                            <td data-label="Equipment Requirements">
+                                <div class="requirement-count">
+                                    {{ exp.equipment_requirements.count }} types
+                                </div>
+                                <ul style="margin: 0.5rem 0 0 0; padding-left: 16px; font-size: 0.9rem;">
+                                    {% for req in exp.equipment_requirements.all %}
+                                        <li>{{ req.equipment_type }} <span style="color: #666;">× {{ req.quantity_required }}</span></li>
+                                    {% empty %}
+                                        <li style="color: #666; font-style: italic;">No requirements defined</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+
+                            <td data-label="Edit">
+                                <a href="{% url 'admin:equipment_experiment_change' exp.id %}" class="btn btn-sm" style="padding: 0.5rem 1rem; background: #000; color: #ffbd00; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                                    ✏️ Edit
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">📭 No experiments found.</p>
+    {% endif %}
+</div>
 
 {% endblock %}
