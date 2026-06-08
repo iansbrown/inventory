@@ -91,10 +91,11 @@ class EquipmentImageInline(admin.TabularInline):
     """
     Images associated with a specific equipment item.
     Item-level documentation; not shared across EquipmentType.
+    Includes camera capture widget for mobile-friendly photo capture.
     """
 
     model = EquipmentImage
-    extra = 0
+    extra = 1
     fields = (
         "image_preview",
         "image",
@@ -123,6 +124,12 @@ class EquipmentImageInline(admin.TabularInline):
     
     
     image_preview.short_description = "Preview"
+    
+    class Media:
+        css = {
+            'all': ('admin/camera-capture.css',)
+        }
+        js = ('admin/camera-capture.js',)
     
 class ExperimentEquipmentRequirementInline(admin.TabularInline):
    

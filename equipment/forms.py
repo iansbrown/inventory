@@ -199,7 +199,7 @@ class EquipmentItemInlineForm(forms.ModelForm):
         return cleaned
 
 
-
+    
 
 class PurchaseRecordForm(forms.ModelForm):
 
@@ -219,5 +219,29 @@ class PurchaseRecordForm(forms.ModelForm):
         self.fields["date_ordered"].initial = timezone.now().date()
 
 
+class CameraImageField(forms.ImageField):
+    """
+    Custom ImageField that allows both camera capture and traditional file upload.
+    Includes a camera widget UI for capturing images from device cameras.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget = CameraImageWidget()
 
+
+class CameraImageWidget(forms.FileInput):
+    """
+    Custom widget that renders a camera capture UI alongside traditional file upload.
+    """
+    
+    template_name = 'admin/camera_fieldwidget.html'
+    
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        # Add custom attributes for camera widget
+        context['widget']['attrs']['accept'] = 'image/*'
+        context['widget']['attrs']['capture'] = 'environment'  # Mobile camera preference
+        return context
+    
     
