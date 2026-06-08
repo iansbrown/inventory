@@ -9,10 +9,15 @@ Created on Tue May 12 11:09:13 2026
 
 from scheduling.views import experiment_equipment_view
 from django.urls import path
-from . import views
+from . import views, api
 
 
 urlpatterns = [
+    path(
+        "api/equipment/<int:equipment_id>/capture-image/",
+        api.capture_image,
+        name="capture_image",
+    ),
     path(
         "experiment/<int:experiment_id>/equipment/",
         experiment_equipment_view,

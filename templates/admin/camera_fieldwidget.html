@@ -1,0 +1,43 @@
+{% load i18n %}
+
+<div class="camera-capture-field">
+    <!-- Camera Capture Widget -->
+    <div id="camera-capture-widget" 
+         data-equipment-id="{{ view.kwargs.equipment_id|default:object.equipment_id|default:'0' }}"
+         style="margin-bottom: 1rem;">
+        <!-- Widget will be initialized by camera-capture.js -->
+    </div>
+
+    <!-- Traditional File Upload (Fallback) -->
+    <div class="file-upload-fallback" style="margin-top: 1rem;">
+        <label for="{{ widget.attrs.id }}">
+            📁 {% trans "Or select a file to upload:" %}
+        </label>
+        {% include "django/forms/widgets/file.html" %}
+    </div>
+</div>
+
+<style>
+    .camera-capture-field {
+        padding: 1rem;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin: 1rem 0;
+    }
+
+    .file-upload-fallback {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .file-upload-fallback label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .file-upload-fallback input[type="file"] {
+        width: 100%;
+    }
+</style>

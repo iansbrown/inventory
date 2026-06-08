@@ -1,0 +1,51 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/camera-capture.css' %}">
+{% endblock %}
+
+{% block extrajs %}
+    {{ block.super }}
+    <script src="{% static 'admin/camera-capture.js' %}"></script>
+    <script>
+        // Initialize camera widget for each inline equipment image form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the equipment ID from the current object
+            const equipmentId = {{ object.pk|default:0 }};
+            
+            if (!equipmentId) {
+                console.log('Camera widget: No equipment ID found');
+                return;
+            }
+            
+            // Find all image file inputs in the formset
+            const imageInputs = document.querySelectorAll('input[type="file"][name$="-image"]');
+            
+            imageInputs.forEach((input, index) => {
+                // Check if camera widget already exists for this input
+                let cameraContainer = input.parentNode.querySelector('.camera-widget-inline');
+                
+                if (!cameraContainer) {
+                    // Create the camera widget container
+                    cameraContainer = document.createElement('div');
+                    cameraContainer.id = `camera-capture-inline-${index}`;
+                    cameraContainer.className = 'camera-widget-inline';
+                    cameraContainer.style.marginBottom = '1rem';
+                    
+                    // Insert before the file input
+                    input.parentNode.insertBefore(cameraContainer, input);
+                    
+                    // Initialize camera widget
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                    try {
+                        new CameraCapture(`camera-capture-inline-${index}`, equipmentId, csrfToken);
+                    } catch (e) {
+                        console.error('Failed to initialize camera widget:', e);
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
